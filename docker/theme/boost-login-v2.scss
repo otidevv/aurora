@@ -1,0 +1,592 @@
+// =====================================================================
+//  Aurora Login v2 — implementation of the Claude Design spec
+//  (Aurora Login v2.dc.html) for the Moodle Boost login page.
+//  Applied via Site admin > Appearance > Themes > Boost > Advanced > Raw SCSS
+// =====================================================================
+$aurora-brand: #b5103d;
+$aurora-brand-hover: #960d33;
+$aurora-brand-link-hover: #7d0a2b;
+$aurora-ink: #2a1a1e;
+$aurora-muted: #6b5a5f;
+$aurora-muted-2: #4a3a3f;
+$aurora-bg: #fbf8f6;
+$aurora-border: #d9cfd2;
+$aurora-divider: #ece4e6;
+$aurora-hover-bg: #f3ecee;
+$aurora-serif: 'Source Serif 4', Georgia, serif;
+$aurora-sans: 'Source Sans 3', Helvetica, Arial, sans-serif;
+
+.pagelayout-login {
+    font-family: $aurora-sans;
+    color: $aurora-ink;
+
+    #page {
+        background-color: $aurora-bg;
+    }
+
+    // Column split 1.1fr / 1fr from the design.
+    #page-content {
+        > .login-layout-left {
+            flex: 0 0 52.4%;
+            max-width: 52.4%;
+        }
+
+        > .login-layout-right {
+            flex: 1 1 0;
+            max-width: none;
+        }
+    }
+
+    // ---------------------------------------------------------------
+    //  Left panel: gradient + subtle diagonal stripes + highlight
+    // ---------------------------------------------------------------
+    .login-layout-left {
+        display: block;
+        padding: 0;
+        color: #fff;
+        overflow: hidden;
+    }
+
+    // The campus photo (Boost "login background image") sits underneath; the v2 gradient goes
+    // on top, semi-transparent and multiplied, so the photo shows through tinted.
+    #page .login-layout-left {
+        position: sticky;
+        isolation: isolate;
+        background-color: #5c0a22;
+        background-position: center !important;
+
+        &::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                repeating-linear-gradient(135deg, rgba(#fff, 0.03) 0 2px, transparent 2px 18px),
+                linear-gradient(90deg, rgba(#2a0a15, 0.6) 0%, rgba(#2a0a15, 0.25) 60%, transparent 100%),
+                linear-gradient(160deg, rgba(#5c0a22, 0.9) 0%, rgba(#8a0e33, 0.82) 55%, rgba($aurora-brand, 0.78) 100%);
+            mix-blend-mode: multiply;
+        }
+    }
+
+    .login-layout-left-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        max-width: none;
+        margin: 0;
+        padding: 48px;
+        color: #fff;
+        text-align: left;
+        background: none;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+
+        // Wrappers added by the layout / format_text.
+        > div,
+        .text_to_html {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 0;
+        }
+
+        a {
+            color: inherit;
+        }
+    }
+
+    .aurora-panel {
+        position: relative;
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 40px;
+        min-height: 0;
+    }
+
+    .aurora-brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .aurora-brand-crest {
+        flex-shrink: 0;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #fff;
+        display: grid;
+        place-items: center;
+
+        img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+        }
+    }
+
+    .aurora-brand-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .aurora-brand-name {
+        font-weight: 700;
+        font-size: 18px;
+        line-height: 1.2;
+        letter-spacing: 0.02em;
+    }
+
+    .aurora-brand-sub {
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        opacity: 0.85;
+        white-space: nowrap;
+    }
+
+    .aurora-hero {
+        max-width: 520px;
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+    }
+
+    .aurora-hero-title {
+        margin: 0;
+        font-family: $aurora-serif;
+        font-weight: 700;
+        font-size: clamp(36px, 4vw, 56px);
+        line-height: 1.05;
+        letter-spacing: -0.01em;
+        color: #fff;
+        text-wrap: pretty;
+        text-shadow: 0 2px 12px rgba(#000, 0.35);
+    }
+
+    .aurora-hero-text {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.5;
+        color: rgba(#fff, 0.9);
+        text-wrap: pretty;
+        text-shadow: 0 1px 8px rgba(#000, 0.35);
+    }
+
+    .aurora-features {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+
+        li {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+    }
+
+    .aurora-feature-icon {
+        flex-shrink: 0;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: rgba(#fff, 0.14);
+        display: grid;
+        place-items: center;
+        font-size: 16px;
+
+        .fa {
+            margin: 0;
+            color: #fff;
+        }
+    }
+
+    .aurora-copyright {
+        margin: 0;
+        font-size: 13px;
+        color: rgba(#fff, 0.7);
+    }
+
+    // ---------------------------------------------------------------
+    //  Right panel: form
+    // ---------------------------------------------------------------
+    .login-layout-right {
+        background-color: $aurora-bg;
+        padding: 48px 32px;
+    }
+
+    .login-layout-right-content {
+        max-width: 400px;
+    }
+
+    .loginform {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+
+        > * {
+            grid-column: 1 / -1;
+        }
+
+        // Logo slot only on small screens (the left panel carries the brand on desktop).
+        #loginlogo {
+            display: none !important;
+        }
+
+        h1.h2 {
+            margin: 0 0 8px;
+            font-family: $aurora-serif;
+            font-weight: 700;
+            font-size: 32px;
+            line-height: 1.15;
+            letter-spacing: -0.01em;
+            color: $aurora-ink;
+        }
+
+        > p.text-muted {
+            margin: 0 0 22px !important;
+            font-size: 16px;
+            color: $aurora-muted !important;
+        }
+
+        // Copy repeated under the form on small screens: not needed.
+        > .d-lg-none {
+            display: none !important;
+        }
+    }
+
+    .login-container {
+        a {
+            color: $aurora-brand;
+            text-decoration: none;
+
+            &:hover,
+            &:focus {
+                color: $aurora-brand-link-hover;
+                text-decoration: underline;
+            }
+        }
+
+        .form-label {
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            color: $aurora-ink;
+        }
+
+        // Form as a two-column grid so the "forgot password" link sits next to the label.
+        .login-form {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            column-gap: 12px;
+            align-items: baseline;
+
+            > * {
+                grid-column: 1 / -1;
+            }
+
+            > .login-form-username {
+                margin-bottom: 22px !important;
+            }
+
+            > .login-form-password {
+                display: contents;
+
+                > label {
+                    grid-column: 1;
+                    grid-row: 2;
+                }
+
+                > :not(label) {
+                    grid-column: 1 / -1;
+                    grid-row: 3;
+                    margin-bottom: 22px;
+                }
+            }
+
+            > .text-end {
+                grid-column: 2;
+                grid-row: 2;
+                margin: 0 0 6px !important;
+                font-size: 14px;
+                font-weight: 600;
+                line-height: 1.5;
+            }
+
+            > .login-form-submit {
+                margin: 0 !important;
+            }
+
+            .form-control {
+                height: 48px;
+                padding: 0 14px;
+                font-family: $aurora-sans;
+                font-size: 16px;
+                font-weight: 400;
+                color: $aurora-ink;
+                background-color: #fff;
+                border: 1px solid $aurora-border;
+                border-radius: 10px !important;
+                box-shadow: none;
+                transition: border-color 0.15s, box-shadow 0.15s;
+
+                &::placeholder {
+                    color: #9a8b8f;
+                }
+
+                &:hover {
+                    background-color: #fff;
+                }
+
+                &:focus {
+                    outline: none;
+                    background-color: #fff;
+                    border-color: $aurora-brand;
+                    box-shadow: 0 0 0 3px rgba($aurora-brand, 0.16);
+                }
+            }
+
+            .toggle-sensitive-wrapper {
+                position: relative;
+                display: flex;
+                width: 100%;
+
+                .form-control {
+                    flex: 1 1 auto;
+                    width: 100%;
+                    padding-right: 48px;
+                }
+
+                .toggle-sensitive-btn,
+                &.small-screens-only .toggle-sensitive-btn {
+                    --bs-btn-bg: transparent;
+                    --bs-btn-border-color: transparent;
+                    --bs-btn-hover-bg: #{$aurora-hover-bg};
+                    --bs-btn-hover-border-color: transparent;
+                    --bs-btn-active-bg: #{$aurora-hover-bg};
+                    --bs-btn-active-border-color: transparent;
+                    position: absolute;
+                    right: 4px;
+                    top: 4px;
+                    z-index: 5;
+                    width: 40px;
+                    height: 40px;
+                    padding: 0;
+                    display: grid;
+                    place-items: center;
+                    border: 0;
+                    border-radius: 8px;
+                    color: $aurora-muted;
+                    background: transparent;
+                    box-shadow: none;
+
+                    &:hover {
+                        color: $aurora-ink;
+                        background: $aurora-hover-bg;
+                    }
+
+                    &:focus,
+                    &:focus-visible {
+                        color: $aurora-ink;
+                        background: $aurora-hover-bg;
+                        border-color: transparent;
+                        box-shadow: 0 0 0 3px rgba($aurora-brand, 0.16);
+                    }
+
+                    .icon {
+                        margin: 0;
+                        font-size: 18px;
+                        width: auto;
+                        height: auto;
+                    }
+                }
+            }
+
+            .login-form-submit .btn-primary {
+                --bs-btn-bg: #{$aurora-brand};
+                --bs-btn-border-color: #{$aurora-brand};
+                --bs-btn-hover-bg: #{$aurora-brand-hover};
+                --bs-btn-hover-border-color: #{$aurora-brand-hover};
+                --bs-btn-active-bg: #{$aurora-brand-hover};
+                --bs-btn-active-border-color: #{$aurora-brand-hover};
+                --bs-btn-focus-shadow-rgb: 181, 16, 61;
+                height: 50px;
+                padding: 0 16px;
+                font-family: $aurora-sans;
+                font-size: 16px;
+                font-weight: 700;
+                border: 0;
+                border-radius: 10px;
+                box-shadow: 0 6px 16px rgba($aurora-brand, 0.28);
+                transition: background-color 0.15s, transform 0.1s;
+
+                &:active {
+                    transform: translateY(1px);
+                }
+            }
+        }
+
+        // Footer row: language menu (left) + cookies notice (right).
+        .login-languagemenu,
+        .login-cookiesnotice {
+            margin: 22px 0 0 !important;
+            padding-top: 8px;
+            border-top: 1px solid $aurora-divider;
+            font-size: 13px;
+            color: $aurora-muted;
+            line-height: 1.4;
+        }
+
+        .login-languagemenu {
+            grid-column: 1;
+            justify-content: flex-start !important;
+
+            .dropdown-toggle {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                color: $aurora-muted;
+                font-size: 13px;
+                text-decoration: none;
+
+                &::before {
+                    content: "\f0ac";
+                    font-family: "Font Awesome 6 Free";
+                    font-weight: 900;
+                    font-size: 13px;
+                }
+
+                &::after {
+                    display: none;
+                }
+
+                .caret {
+                    margin-left: 2px;
+                }
+
+                &:hover,
+                &:focus {
+                    color: $aurora-ink;
+                    text-decoration: none;
+                }
+            }
+
+            .dropdown-menu {
+                max-height: 300px;
+                overflow-y: auto;
+            }
+        }
+
+        .login-cookiesnotice {
+            grid-column: 2;
+            text-align: right;
+
+            .btn-link {
+                font-family: $aurora-sans;
+                font-size: 13px;
+                color: $aurora-muted;
+                text-decoration: none;
+
+                &:hover,
+                &:focus {
+                    color: $aurora-brand-link-hover;
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        // Second login method: "Acceder con correo @unamad.edu.pe" (Google OAuth 2).
+        .login-separator {
+            margin: 22px 0 !important;
+            color: $aurora-muted;
+            font-size: 13px;
+            letter-spacing: 0.08em;
+
+            &::before,
+            &::after {
+                border-top-color: $aurora-divider;
+            }
+        }
+
+        .login-identityproviders {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .login-identityprovider-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            height: 48px;
+            margin: 0 !important;
+            padding: 0 16px;
+            font-family: $aurora-sans;
+            font-size: 15px;
+            font-weight: 600;
+            color: $aurora-ink;
+            background-color: #fff;
+            border: 1px solid $aurora-border;
+            border-radius: 10px;
+            box-shadow: none;
+            transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+
+            img {
+                width: 22px;
+                height: 22px;
+            }
+
+            &:hover,
+            &:focus {
+                background-color: $aurora-hover-bg;
+                border-color: $aurora-brand;
+                color: $aurora-brand-link-hover;
+            }
+
+            &:focus-visible {
+                box-shadow: 0 0 0 3px rgba($aurora-brand, 0.16);
+            }
+        }
+
+        #guestlogin {
+            margin: 12px 0 0 !important;
+        }
+    }
+
+    // ---------------------------------------------------------------
+    //  Small screens: left panel hidden, brand strip + logo on top
+    // ---------------------------------------------------------------
+    @include media-breakpoint-down(lg) {
+        .login-layout-right {
+            padding: 32px 20px;
+            border-top: 6px solid $aurora-brand;
+        }
+
+        .loginform #loginlogo {
+            display: flex !important;
+            justify-content: flex-start !important;
+            margin-bottom: 20px !important;
+
+            img {
+                max-height: 72px;
+                width: auto;
+            }
+        }
+    }
+}

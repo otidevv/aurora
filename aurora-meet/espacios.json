@@ -1,0 +1,36 @@
+[
+  {
+    "curso": "MEET-PRUEBA",
+    "titulo": "Clases en Google Meet (prueba)",
+    "docente": "apenam@unamad.edu.pe",
+    "espacio": "spaces/zTe7820cLhAB",
+    "codigo": "aur-vrmr-ogm",
+    "enlace": "https://meet.google.com/aur-vrmr-ogm",
+    "autograbacion": "ON",
+    "creado": "2026-09-15"
+  },
+  {
+    "curso": "MEET-PRUEBA",
+    "titulo": "Clase Meet de prueba (desde el plugin)",
+    "docente": "apenam@unamad.edu.pe",
+    "espacio": "spaces/Pb7Nhmo5wvYB",
+    "codigo": "xyt-jran-ksz",
+    "enlace": "https://meet.google.com/xyt-jran-ksz",
+    "autograbacion": "ON",
+    "creado": "2026-09-15",
+    "origen": "mod_clasemeet cmid 6"
+  },
+  {
+    "curso": "MEET-PRUEBA",
+    "titulo": "Clase programada de prueba (08:00 a 10:00)",
+    "docente": "apenam@unamad.edu.pe",
+    "espacio": "spaces/n-BH6c0HrSUB",
+    "codigo": "mwg-uxvw-hrj",
+    "enlace": "https://meet.google.com/mwg-uxvw-hrj",
+    "autograbacion": "ON",
+    "creado": "2026-09-15",
+    "horario": "2026-09-16 08:00-10:00 America/Lima",
+    "origen": "mod_clasemeet cmid 7",
+    "google_event": "vammafragopesomlcor1oog2pc"
+  }
+]

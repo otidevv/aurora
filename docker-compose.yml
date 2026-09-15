@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: moodle
+      POSTGRES_USER: moodle
+      POSTGRES_PASSWORD: moodle
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moodle -d moodle"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      # Mount the Moodle source so the running code == the code in C:\moodle.
+      - .:/var/www/html
+      # Persistent, web-inaccessible data directory (uploaded files, cache...).
+      - moodledata:/var/www/moodledata
+
+volumes:
+  dbdata:
+  moodledata:

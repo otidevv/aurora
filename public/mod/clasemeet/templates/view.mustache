@@ -1,0 +1,135 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_clasemeet/view
+
+    Meet class page: join card and recordings list.
+
+    Example context (json):
+    {
+        "name": "Cálculo I - Semana 3",
+        "intro": "<p>Clase en vivo</p>",
+        "hasspace": true,
+        "meetinguri": "https://meet.google.com/abc-defg-hij",
+        "meetingcode": "abc-defg-hij",
+        "ownername": "Ana Pérez",
+        "autorecording": true,
+        "hasrecordings": true,
+        "recordings": [
+            {"date": "15/09/26 10:00", "duration": "1 hora 30 min", "state": "Lista", "ready": true,
+             "exporturi": "https://drive.google.com/file/d/xyz/view", "shared": false}
+        ],
+        "canmanage": true,
+        "syncurl": "#",
+        "lastsync": "nunca"
+    }
+}}
+<div class="clasemeet">
+    {{{intro}}}
+
+    {{#hasspace}}
+    <div class="card mb-4">
+        <div class="card-body d-flex flex-wrap align-items-center gap-3">
+            <div class="flex-grow-1">
+                {{#schedule}}
+                <div class="fw-semibold mb-1">
+                    <i class="fa fa-calendar me-1" aria-hidden="true"></i>{{schedule}}
+                    {{#status}}<span class="badge {{statusclass}} ms-2">{{statustext}}</span>{{/status}}
+                </div>
+                {{/schedule}}
+                <div class="text-muted small">{{#str}}owner, mod_clasemeet{{/str}}: {{ownername}}</div>
+                <div class="text-muted small">{{#str}}meetingcode, mod_clasemeet{{/str}}: <code>{{meetingcode}}</code></div>
+                {{#autorecording}}
+                <div class="mt-2">
+                    <span class="badge bg-danger"><i class="fa fa-circle me-1" aria-hidden="true"></i>{{#str}}recordingautomatic, mod_clasemeet{{/str}}</span>
+                </div>
+                {{/autorecording}}
+            </div>
+            <a class="btn btn-primary btn-lg" href="{{meetinguri}}" target="_blank" rel="noopener"
+               title="{{#str}}opennewtab, mod_clasemeet{{/str}}">
+                <i class="fa fa-video me-2" aria-hidden="true"></i>{{#str}}join, mod_clasemeet{{/str}}
+            </a>
+        </div>
+    </div>
+    {{/hasspace}}
+    {{^hasspace}}
+    <div class="alert alert-warning">{{#str}}errornospace, mod_clasemeet{{/str}}</div>
+    {{/hasspace}}
+
+    <h3 class="h4">{{#str}}recordings, mod_clasemeet{{/str}}</h3>
+    {{#sharingnotice}}
+    <div class="alert alert-warning small">
+        <i class="fa fa-triangle-exclamation me-1" aria-hidden="true"></i>{{{sharingnotice}}}
+    </div>
+    {{/sharingnotice}}
+    {{#hasrecordings}}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>{{#str}}date, mod_clasemeet{{/str}}</th>
+                    <th>{{#str}}duration, mod_clasemeet{{/str}}</th>
+                    <th>{{#str}}status{{/str}}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#recordings}}
+                <tr>
+                    <td>{{date}}</td>
+                    <td>{{duration}}</td>
+                    <td>
+                        {{state}}
+                        {{#ready}}
+                            {{#shared}}<span class="badge bg-success ms-1">{{#str}}shared, mod_clasemeet{{/str}}</span>{{/shared}}
+                            {{^shared}}<span class="badge bg-secondary ms-1" title="{{#str}}notshared_help, mod_clasemeet{{/str}}">{{#str}}notshared, mod_clasemeet{{/str}}</span>{{/shared}}
+                        {{/ready}}
+                    </td>
+                    <td class="text-end">
+                        {{#ready}}
+                        <a class="btn btn-outline-primary btn-sm" href="{{exporturi}}" target="_blank" rel="noopener">
+                            <i class="fa fa-play me-1" aria-hidden="true"></i>{{#str}}watch, mod_clasemeet{{/str}}
+                        </a>
+                        {{/ready}}
+                        {{^ready}}
+                            {{#inprogress}}
+                            <span class="text-danger small"><i class="fa fa-circle me-1" aria-hidden="true"></i>{{#str}}inprogress, mod_clasemeet{{/str}}</span>
+                            {{/inprogress}}
+                            {{^inprogress}}
+                            <span class="text-muted small"><i class="fa fa-hourglass-half me-1" aria-hidden="true"></i>{{#str}}processing, mod_clasemeet{{/str}}</span>
+                            {{/inprogress}}
+                        {{/ready}}
+                    </td>
+                </tr>
+                {{/recordings}}
+            </tbody>
+        </table>
+    </div>
+    {{/hasrecordings}}
+    {{^hasrecordings}}
+    <p class="text-muted">{{#str}}norecordings, mod_clasemeet{{/str}}</p>
+    {{/hasrecordings}}
+
+    {{#canmanage}}
+    <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
+        <a class="btn btn-outline-secondary" href="{{syncurl}}">
+            <i class="fa fa-rotate me-1" aria-hidden="true"></i>{{#str}}sync, mod_clasemeet{{/str}}
+        </a>
+        <span class="text-muted small">{{#str}}lastsync, mod_clasemeet, {{lastsync}}{{/str}}</span>
+    </div>
+    {{/canmanage}}
+</div>
