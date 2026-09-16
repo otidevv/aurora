@@ -1,0 +1,5 @@
+# Originales en alta resolución (11-27 MB cada una): no se suben al repositorio.
+# El carrusel del login usa las copias ligeras de web/ (generadas con docker/theme/resize_image.php).
+/*.jpg
+/*.jpeg
+/*.png

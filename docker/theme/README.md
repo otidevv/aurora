@@ -118,3 +118,55 @@ account outside unamad.edu.pe gets Google's "restricted to users within its orga
 
 Behaviour: an existing Aurora account with the same e-mail is linked automatically on first Google
 login; unknown @unamad.edu.pe users get an account created.
+
+## Volver al login estándar de Moodle
+
+El 2026-09-16 se decidió usar el login tal como lo trae Moodle. `reset_login_default.php` vacía el
+SCSS de Boost, el panel de bienvenida, las fuentes del `<head>`, el fondo, el logo y las cadenas de
+idioma locales del login. Conserva el nombre del sitio y el acceso con Google (OAuth 2).
+
+```sh
+docker compose cp docker/theme/reset_login_default.php web:/tmp/reset_login_default.php
+docker compose exec -T web php /tmp/reset_login_default.php
+```
+
+En un servidor sin Docker, pasa la ruta de `config.php` como argumento. Los demás archivos de esta
+carpeta se conservan por si se quiere volver a aplicar el diseño Aurora.
+
+### Logo horizontal UNAMAD (2026-09-16)
+
+Sobre el login estándar, el logo del sitio es `logo_horizontal.png` (escudo + "UNAMAD Universidad
+Nacional Amazónica de Madre de Dios", 468×150). Moodle lo muestra centrado encima de "Le damos la
+bienvenida de nuevo" sin ningún estilo extra.
+
+```sh
+docker compose cp docker/theme/logo_horizontal.png web:/tmp/logo_horizontal.png
+docker compose cp docker/theme/set_logo.php web:/tmp/set_logo.php
+docker compose exec -T web sh -c 'php /tmp/set_logo.php /tmp/logo_horizontal.png && php admin/cli/purge_caches.php'
+```
+
+### Carrusel, textos e icono sobre el login estándar (2026-09-16)
+
+- **Carrusel del panel izquierdo:** `login-carousel.html` (estilos + script) va en Administración del sitio >
+  Apariencia > HTML adicional > *Antes de cerrar BODY* (`additionalhtmlfooter`). Solo actúa en la página de
+  login y rota cada 6 s las fotos de `public/banner/web/` (copias de 1600 px hechas con `resize_image.php`;
+  los originales de `public/banner/` no se suben, ver su `.gitignore`). Se pausa si la pestaña no está visible
+  y no anima con "reducir movimiento". La primera foto es también el fondo del login (respaldo sin JavaScript).
+- **Textos:** `lang/es_local` y `lang/en_local` cambian el panel ("Le damos la bienvenida a Aurora", lema de
+  la UNAMAD y tres rasgos en lugar de las cifras de Moodle) y el crédito del menú "?" por la Oficina de
+  Tecnología de la Información con oti@unamad.edu.pe.
+- **Icono de la pestaña:** `public/pestaña_icono/favicon.ico` guardado en Apariencia > Logos > Favicon.
+
+```sh
+docker compose exec -T web sh -c '
+  php admin/cli/cfg.php --name=additionalhtmlfooter --set="$(cat /var/www/html/docker/theme/login-carousel.html)" &&
+  php /var/www/html/docker/theme/set_login_background.php /var/www/html/public/banner/web/banner1.jpg &&
+  php /var/www/html/docker/theme/set_logo.php "/var/www/html/public/pestaña_icono/favicon.ico" favicon &&
+  for l in es_local en_local; do mkdir -p /var/www/moodledata/lang/$l &&
+    cp /var/www/html/docker/theme/lang/$l/moodle.php /var/www/moodledata/lang/$l/; done &&
+  php admin/cli/purge_caches.php'
+```
+
+Nota: `reset_login_default.php` borra el fondo y el logo, pero no el carrusel (`additionalhtmlfooter`),
+el favicon ni estas cadenas de idioma (solo quita las del diseño Aurora anterior: `loginto`,
+`loginseparatoror`, `loginwith`).
