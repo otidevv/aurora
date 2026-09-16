@@ -1,0 +1,54 @@
+<style>
+/*
+ * Login de Aurora sobre el diseño estándar de Moodle (Boost).
+ * Se guarda en Administración del sitio > Apariencia > HTML adicional > Antes de cerrar BODY.
+ * - Sin panel izquierdo: la imagen de Aurora ocupa todo el ancho.
+ * - Formulario centrado sobre una tarjeta blanca.
+ * La URL de la imagen es relativa a /login/, así que funciona aunque Moodle esté en un subdirectorio.
+ */
+body.pagelayout-login .login-layout-left { display: none !important; }
+
+body.pagelayout-login .login-layout-right {
+    flex: 0 0 100%;
+    max-width: 100%;
+    background-color: #eef4fb;
+    background-image: url("../banner/web/fondo_login.jpg");
+    background-size: cover;
+    /* Pantallas más anchas que la imagen recortan arriba y abajo: se prioriza la parte inferior (río, ondas y la "A"). */
+    background-position: center 75%;
+}
+
+/* #region-main-box: Boost quita el relleno lateral de este contenedor en móvil con un selector de id. */
+body.pagelayout-login #region-main-box.login-layout-right-content {
+    position: relative;
+    z-index: 1;
+    max-width: 460px;
+    margin: auto;
+    padding: 2.25rem 2.5rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 18px 50px rgba(20, 40, 90, .18);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+@media (max-width: 991.98px) {
+    body.pagelayout-login #region-main-box.login-layout-right-content { padding: 1.75rem 1.5rem; }
+    /* En móvil el logo no debe empujar el formulario fuera de la pantalla. */
+    body.pagelayout-login #loginlogo { margin-bottom: 1rem !important; }
+    body.pagelayout-login #loginlogo img { max-height: 110px; width: auto; }
+}
+
+@media (max-width: 400px) {
+    body.pagelayout-login .login-layout-right { padding: 1rem .75rem; }
+    body.pagelayout-login #region-main-box.login-layout-right-content { padding: 1.5rem 1.25rem; }
+    body.pagelayout-login #loginlogo img { max-height: 90px; }
+    /* Que "Acceder con correo @unamad.edu.pe" quepa en una línea. */
+    body.pagelayout-login .login-identityprovider-btn {
+        padding-left: .5rem;
+        padding-right: .5rem;
+        font-size: .875rem;
+        white-space: nowrap;
+    }
+}
+</style>

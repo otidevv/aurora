@@ -15,5 +15,8 @@ $string['loginstatsites'] = 'clases por Meet';
 $string['loginstatcountries_value'] = 'Grabadas';
 $string['loginstatcountries'] = 'para repasar';
 
+// Separador entre el formulario y el acceso con Google (el paquete de español lo deja en inglés).
+$string['loginseparatoror'] = 'o';
+
 // Pie de página (menú del icono "?").
 $string['poweredbymoodle'] = 'Desarrollado por la Oficina de Tecnología de la Información · <a href="mailto:oti@unamad.edu.pe">oti@unamad.edu.pe</a>';

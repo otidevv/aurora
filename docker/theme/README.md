@@ -147,7 +147,7 @@ docker compose exec -T web sh -c 'php /tmp/set_logo.php /tmp/logo_horizontal.png
 
 ### Carrusel, textos e icono sobre el login estándar (2026-09-16)
 
-- **Carrusel del panel izquierdo:** `login-carousel.html` (estilos + script) va en Administración del sitio >
+- **Carrusel del panel izquierdo (retirado el mismo día, ver la última sección):** `login-carousel.html` (estilos + script) va en Administración del sitio >
   Apariencia > HTML adicional > *Antes de cerrar BODY* (`additionalhtmlfooter`). Solo actúa en la página de
   login y rota cada 6 s las fotos de `public/banner/web/` (copias de 1600 px hechas con `resize_image.php`;
   los originales de `public/banner/` no se suben, ver su `.gitignore`). Se pausa si la pestaña no está visible
@@ -159,7 +159,7 @@ docker compose exec -T web sh -c 'php /tmp/set_logo.php /tmp/logo_horizontal.png
 
 ```sh
 docker compose exec -T web sh -c '
-  php admin/cli/cfg.php --name=additionalhtmlfooter --set="$(cat /var/www/html/docker/theme/login-carousel.html)" &&
+  php admin/cli/cfg.php --name=additionalhtmlfooter --set="$(cat /var/www/html/docker/theme/login-aurora.html)" &&
   php /var/www/html/docker/theme/set_login_background.php /var/www/html/public/banner/web/banner1.jpg &&
   php /var/www/html/docker/theme/set_logo.php "/var/www/html/public/pestaña_icono/favicon.ico" favicon &&
   for l in es_local en_local; do mkdir -p /var/www/moodledata/lang/$l &&
@@ -170,3 +170,99 @@ docker compose exec -T web sh -c '
 Nota: `reset_login_default.php` borra el fondo y el logo, pero no el carrusel (`additionalhtmlfooter`),
 el favicon ni estas cadenas de idioma (solo quita las del diseño Aurora anterior: `loginto`,
 `loginseparatoror`, `loginwith`).
+
+### Logo Aurora sobre el formulario (2026-09-16)
+
+Sustituye al logo horizontal UNAMAD. El original `public/banner/aurora.png` (1254×1254, con mucho margen
+transparente; no se sube, ver `public/banner/.gitignore`) se recortó con `trim_image.php` a
+`logo_aurora.png` (370×320). Moodle lo sirve a 200 px de alto encima de "Le damos la bienvenida de nuevo".
+
+```sh
+docker compose exec -T web sh -c '
+  php /var/www/html/docker/theme/trim_image.php /var/www/html/public/banner/aurora.png /var/www/html/docker/theme/logo_aurora.png 320 60 8 &&
+  php /var/www/html/docker/theme/set_logo.php /var/www/html/docker/theme/logo_aurora.png logo &&
+  php admin/cli/purge_caches.php'
+```
+
+### Imagen de fondo detrás del formulario (2026-09-16)
+
+`public/banner/fondo.png` (1672×941, diseño de marca Aurora; el original no se sube) se convirtió con
+`resize_image.php` en `public/banner/web/fondo_formulario.jpg` (103 KB). `login-carousel.html` la pone de
+fondo en la mitad derecha del login, encuadrada a la derecha para que se vea la "A", y muestra el
+formulario sobre una tarjeta blanca semitransparente. La URL se fija por JavaScript con la variable CSS
+`--aurora-form-bg` para respetar `wwwroot`. En móvil el panel izquierdo se oculta (estándar de Moodle) y
+la tarjeta queda sobre la imagen.
+
+```sh
+docker compose exec -T web sh -c '
+  php /var/www/html/docker/theme/resize_image.php /var/www/html/public/banner/fondo.png /var/www/html/public/banner/web/fondo_formulario.jpg 1672 84 &&
+  php admin/cli/cfg.php --name=additionalhtmlfooter --set="$(cat /var/www/html/docker/theme/login-aurora.html)" &&
+  php admin/cli/purge_caches.php'
+```
+
+Ajustes de móvil (mismo día): Boost quita el relleno lateral de `#region-main-box` por debajo de 768 px
+con un selector de id, así que las reglas de la tarjeta usan `#region-main-box.login-layout-right-content`.
+En móvil el logo baja a 110 px (90 px en pantallas de 400 px o menos) y el botón de Google usa letra algo
+menor para caber en una línea. `lang/es_local` traduce el separador "OR" a "o". Comprobado a 360, 390 y
+768 px sin desplazamiento horizontal.
+
+## Estado actual del login (2026-09-16): imagen a todo el ancho
+
+A petición del usuario se retiró el panel izquierdo con el carrusel. `login-aurora.html` (solo CSS, sin
+JavaScript) sustituye a `login-carousel.html` en `additionalhtmlfooter`:
+
+- oculta `.login-layout-left` y deja la columna del formulario a todo el ancho;
+- pone `public/banner/web/fondo_formulario.jpg` de fondo (`cover`, encuadre `30% 10%` para que en monitores
+  panorámicos se vean el logo y los lemas de la parte superior de la imagen);
+- centra el formulario en una tarjeta blanca y mantiene los ajustes de móvil.
+
+La URL de la imagen es relativa (`../banner/web/...`) y funciona con Moodle en un subdirectorio. Las fotos
+del carrusel siguen en `public/banner/web/` sin uso, y los textos del panel de bienvenida en `lang/*_local`
+ya no se muestran. Comprobado a 3440×1249, 1366×768 y 390×844.
+
+```sh
+docker compose exec -T web sh -c '
+  php admin/cli/cfg.php --name=additionalhtmlfooter --set="$(cat /var/www/html/docker/theme/login-aurora.html)" &&
+  php admin/cli/purge_caches.php'
+```
+
+La imagen original mide 1672×941; en pantallas de más de 2000 px de ancho se amplía y pierde nitidez.
+Una versión de 3840 px del mismo diseño lo resolvería.
+
+### Cambio de imagen: `fondopro.png` (2026-09-16)
+
+El fondo pasó a `public/banner/fondopro.png` (mismo diseño, sin logo ni textos; el original no se sube),
+convertido con `resize_image.php` en `public/banner/web/fondo_login.jpg` (102 KB). Se borró
+`fondo_formulario.jpg`. Como la imagen ya no tiene textos arriba, el encuadre es `center 75%`: en
+pantallas panorámicas se prioriza la parte inferior (río, ondas y la "A").
+
+```sh
+docker compose exec -T web sh -c '
+  php /var/www/html/docker/theme/resize_image.php /var/www/html/public/banner/fondopro.png /var/www/html/public/banner/web/fondo_login.jpg 1672 84 &&
+  php admin/cli/cfg.php --name=additionalhtmlfooter --set="$(cat /var/www/html/docker/theme/login-aurora.html)" &&
+  php admin/cli/purge_caches.php'
+```
+
+### Franja vertical con foto del campus (2026-09-16)
+
+En escritorio (≥ 992 px) `login-aurora.html` añade a la izquierda una franja con
+`public/banner/web/banner1.jpg` (Pabellón A, encuadre `22% center`), de ancho `clamp(220px, 24vw, 480px)`,
+con sombra suave y una línea de 4 px con el degradado del logo (morado → azul → turquesa). La franja se
+dibuja con `::before`/`::after` de `.login-layout-right`, y el relleno izquierdo de ese contenedor hace que
+la tarjeta se centre en el espacio restante. En móvil y tableta vertical la franja se oculta. Espacio
+mínimo entre franja y tarjeta: 152 px a 1024 px de ancho. El comando de aplicación es el mismo de arriba.
+
+Ajuste posterior: la franja ya no va pegada al borde. `--aurora-strip-left: clamp(32px, 5vw, 140px)` la
+separa de la izquierda (51 px a 1024, 96 px a 1920, 140 px en monitores de 2800 px o más); la línea de
+color y el centrado de la tarjeta usan esa misma variable. Espacio mínimo franja–tarjeta: 126 px a 1024 px.
+
+Cambio de foto: la franja usa ahora `public/banner/web/banner4.jpg` (letras UNAMAD) con encuadre
+`8% center`, que muestra la "U" completa con el edificio detrás. Con el encuadre centrado solo se leía
+"NA", porque las letras son mucho más anchas que la franja.
+
+Prueba a petición del usuario: la franja muestra `banner4.jpg` completa (`contain`) sobre un degradado azul
+de la marca que rellena arriba y abajo. Para volver al recorte que llena la franja, usar
+`url("../banner/web/banner4.jpg") 8% center / cover no-repeat` (anotado en el propio CSS).
+
+**Franja retirada** (mismo día, a petición del usuario): `login-aurora.html` vuelve a ser solo la imagen a
+todo el ancho con la tarjeta centrada. Las notas anteriores sobre la franja quedan como historial.
