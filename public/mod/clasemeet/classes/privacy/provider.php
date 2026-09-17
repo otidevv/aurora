@@ -20,6 +20,7 @@ use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
+use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 
@@ -44,6 +45,14 @@ class provider implements
             'ownerid' => 'privacy:metadata:clasemeet:ownerid',
             'owneremail' => 'privacy:metadata:clasemeet:owneremail',
         ], 'privacy:metadata:clasemeet');
+        $collection->add_database_table('clasemeet_participant', [
+            'userid' => 'privacy:metadata:clasemeet_participant:userid',
+            'displayname' => 'privacy:metadata:clasemeet_participant:displayname',
+            'email' => 'privacy:metadata:clasemeet_participant:email',
+            'firstjoin' => 'privacy:metadata:clasemeet_participant:firstjoin',
+            'lastleave' => 'privacy:metadata:clasemeet_participant:lastleave',
+            'duration' => 'privacy:metadata:clasemeet_participant:duration',
+        ], 'privacy:metadata:clasemeet_participant');
         $collection->add_external_location_link('google', [
             'owneremail' => 'privacy:metadata:clasemeet:owneremail',
         ], 'privacy:metadata:google');
@@ -63,6 +72,14 @@ class provider implements
                  WHERE c.ownerid = :userid";
         $contextlist = new contextlist();
         $contextlist->add_from_sql($sql, ['modlevel' => CONTEXT_MODULE, 'userid' => $userid]);
+
+        $sql = "SELECT ctx.id
+                  FROM {clasemeet_participant} p
+                  JOIN {course_modules} cm ON cm.instance = p.clasemeetid
+                  JOIN {modules} m ON m.id = cm.module AND m.name = 'clasemeet'
+                  JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modlevel
+                 WHERE p.userid = :userid";
+        $contextlist->add_from_sql($sql, ['modlevel' => CONTEXT_MODULE, 'userid' => $userid]);
         return $contextlist;
     }
 
@@ -80,6 +97,13 @@ class provider implements
                   JOIN {modules} m ON m.id = cm.module AND m.name = 'clasemeet'
                  WHERE cm.id = :cmid";
         $userlist->add_from_sql('ownerid', $sql, ['cmid' => $context->instanceid]);
+
+        $sql = "SELECT p.userid
+                  FROM {clasemeet_participant} p
+                  JOIN {course_modules} cm ON cm.instance = p.clasemeetid
+                  JOIN {modules} m ON m.id = cm.module AND m.name = 'clasemeet'
+                 WHERE cm.id = :cmid AND p.userid > 0";
+        $userlist->add_from_sql('userid', $sql, ['cmid' => $context->instanceid]);
     }
 
     /**
@@ -104,6 +128,22 @@ class provider implements
                     'meetinguri' => $instance->meetinguri,
                 ]);
             }
+            $rows = $DB->get_records('clasemeet_participant', ['clasemeetid' => $cm->instance, 'userid' => $userid],
+                'firstjoin ASC');
+            if ($rows) {
+                $data = [];
+                foreach ($rows as $row) {
+                    $data[] = (object) [
+                        'displayname' => $row->displayname,
+                        'email' => $row->email,
+                        'firstjoin' => transform::datetime($row->firstjoin),
+                        'lastleave' => $row->lastleave ? transform::datetime($row->lastleave) : '',
+                        'duration' => format_time($row->duration),
+                    ];
+                }
+                writer::with_context($context)->export_data(
+                    [get_string('attendance', 'mod_clasemeet')], (object) ['connections' => $data]);
+            }
         }
     }
 
@@ -120,6 +160,7 @@ class provider implements
         $cm = get_coursemodule_from_id('clasemeet', $context->instanceid);
         if ($cm) {
             $DB->set_field('clasemeet', 'ownerid', 0, ['id' => $cm->instance]);
+            $DB->delete_records('clasemeet_participant', ['clasemeetid' => $cm->instance]);
         }
     }
 
@@ -136,6 +177,7 @@ class provider implements
             $cm = get_coursemodule_from_id('clasemeet', $context->instanceid);
             if ($cm) {
                 $DB->set_field('clasemeet', 'ownerid', 0, ['id' => $cm->instance, 'ownerid' => $userid]);
+                $DB->delete_records('clasemeet_participant', ['clasemeetid' => $cm->instance, 'userid' => $userid]);
             }
         }
     }
@@ -156,5 +198,6 @@ class provider implements
         [$insql, $params] = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
         $params['instance'] = $cm->instance;
         $DB->set_field_select('clasemeet', 'ownerid', 0, "id = :instance AND ownerid $insql", $params);
+        $DB->delete_records_select('clasemeet_participant', "clasemeetid = :instance AND userid $insql", $params);
     }
 }

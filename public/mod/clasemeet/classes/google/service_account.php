@@ -44,6 +44,12 @@ class service_account {
     /** @var string Extra scope needed to share recording files with the domain. */
     public const SCOPE_DRIVE = 'https://www.googleapis.com/auth/drive';
 
+    /** @var string Scope to read the e-mail of Meet participants from the Workspace directory. */
+    public const SCOPE_DIRECTORY = 'https://www.googleapis.com/auth/admin.directory.user.readonly';
+
+    /** @var string Scope to read conference records and participants. */
+    public const SCOPE_MEET_READ = 'https://www.googleapis.com/auth/meetings.space.readonly';
+
     /** @var array Decoded key file. */
     private array $key;
 

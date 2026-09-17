@@ -35,7 +35,18 @@
         ],
         "canmanage": true,
         "syncurl": "#",
-        "lastsync": "nunca"
+        "lastsync": "nunca",
+        "attendance": {
+            "rules": "Retraso si entra más de 10 min después del inicio; Falta si está conectado menos del 50 % del horario.",
+            "enabled": true, "hasactivity": true, "taken": true,
+            "takentext": "Registrada en la actividad Asistencia el 19/09/26.", "sessionurl": "#",
+            "hasrows": true, "canapply": true, "applyurl": "#",
+            "rows": [
+                {"name": "Luis Quispe", "email": "lquispe@unamad.edu.pe", "identified": true, "profileurl": "#",
+                 "firstjoin": "19:02", "lastleave": "21:00", "time": "1 hora 58 min", "percent": 98, "sessions": 1,
+                 "result": "Presente", "resultclass": "bg-success"}
+            ]
+        }
     }
 }}
 <div class="clasemeet">
@@ -123,6 +134,77 @@
     {{^hasrecordings}}
     <p class="text-muted">{{#str}}norecordings, mod_clasemeet{{/str}}</p>
     {{/hasrecordings}}
+
+    {{#attendance}}
+    <h3 class="h4 mt-4">{{#str}}attendance, mod_clasemeet{{/str}}</h3>
+    <p class="text-muted small mb-2">{{rules}}</p>
+    {{#enabled}}
+        {{^hasactivity}}
+        <div class="alert alert-info small">{{#str}}attendancenoactivity, mod_clasemeet{{/str}}</div>
+        {{/hasactivity}}
+        {{#hasactivity}}
+            {{#taken}}
+            <div class="alert alert-success small d-flex flex-wrap align-items-center gap-2">
+                <span><i class="fa fa-check me-1" aria-hidden="true"></i>{{takentext}}</span>
+                {{#sessionurl}}<a class="alert-link" href="{{sessionurl}}">{{#str}}attendanceview, mod_clasemeet{{/str}}</a>{{/sessionurl}}
+            </div>
+            {{/taken}}
+            {{^taken}}
+            <div class="alert alert-secondary small">{{#str}}attendancenotyet, mod_clasemeet{{/str}}</div>
+            {{/taken}}
+        {{/hasactivity}}
+    {{/enabled}}
+    {{#hasrows}}
+    <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>{{#str}}moodleuser, mod_clasemeet{{/str}}</th>
+                    <th>{{#str}}email, mod_clasemeet{{/str}}</th>
+                    <th>{{#str}}firstjoin, mod_clasemeet{{/str}}</th>
+                    <th>{{#str}}lastleave, mod_clasemeet{{/str}}</th>
+                    <th>{{#str}}time, mod_clasemeet{{/str}}</th>
+                    <th>{{#str}}percent, mod_clasemeet{{/str}}</th>
+                    <th>{{#str}}result, mod_clasemeet{{/str}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#rows}}
+                <tr>
+                    <td>
+                        {{#profileurl}}<a href="{{profileurl}}">{{name}}</a>{{/profileurl}}
+                        {{^profileurl}}{{name}}{{/profileurl}}
+                        {{^identified}}<span class="badge bg-secondary ms-1">{{#str}}notidentified, mod_clasemeet{{/str}}</span>{{/identified}}
+                        {{#typelabel}}<span class="badge bg-light text-dark ms-1">{{typelabel}}</span>{{/typelabel}}
+                        {{#meetname}}<div class="text-muted small">Meet: {{meetname}}</div>{{/meetname}}
+                    </td>
+                    <td class="small">{{email}}</td>
+                    <td>{{firstjoin}}</td>
+                    <td>
+                        {{#connected}}<span class="text-success small"><i class="fa fa-circle me-1" aria-hidden="true"></i>{{#str}}connected, mod_clasemeet{{/str}}</span>{{/connected}}
+                        {{^connected}}{{lastleave}}{{/connected}}
+                    </td>
+                    <td>{{time}}{{#sessions}} <span class="text-muted small" title="{{#str}}connections, mod_clasemeet{{/str}}">×{{sessions}}</span>{{/sessions}}</td>
+                    <td>{{percent}} %</td>
+                    <td>{{#result}}<span class="badge {{resultclass}}">{{result}}</span>{{/result}}</td>
+                </tr>
+                {{/rows}}
+            </tbody>
+        </table>
+    </div>
+    {{/hasrows}}
+    {{^hasrows}}
+    <p class="text-muted">{{#str}}noparticipants, mod_clasemeet{{/str}}</p>
+    {{/hasrows}}
+    {{#canapply}}
+    <a class="btn btn-outline-primary btn-sm mb-2" href="{{applyurl}}"
+       {{#taken}}title="{{#str}}attendanceapplyagain_help, mod_clasemeet{{/str}}"{{/taken}}>
+        <i class="fa fa-clipboard-check me-1" aria-hidden="true"></i>
+        {{#taken}}{{#str}}attendanceapplyagain, mod_clasemeet{{/str}}{{/taken}}
+        {{^taken}}{{#str}}attendanceapply, mod_clasemeet{{/str}}{{/taken}}
+    </a>
+    {{/canapply}}
+    {{/attendance}}
 
     {{#canmanage}}
     <div class="d-flex flex-wrap align-items-center gap-3 mt-3">

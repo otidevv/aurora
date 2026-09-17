@@ -78,3 +78,27 @@ La misma lógica está implementada en PHP como actividad de Moodle en `public/m
 `espacios.json` guarda los espacios Meet creados (curso, docente, nombre del espacio y enlace).
 Primer espacio de prueba: `spaces/zTe7820cLhAB` → https://meet.google.com/aur-vrmr-ogm, enlazado en el
 curso MEET-PRUEBA de Moodle con `docker/cli/agregar_enlace_meet.php`.
+
+## Asistencia desde Meet (versión 0.2.0 del plugin, 2026-09-16)
+
+`mod_clasemeet` registra quién entró a cada clase y lo pasa a la actividad **Asistencia** (`mod_attendance`):
+
+- La tarea `sync_recordings` (cada 15 min), desde 2 h antes del inicio hasta 7 días después del fin, lee los
+  participantes de las reuniones del espacio que empezaron entre 2 h antes del inicio y 3 h después del fin
+  (`conferenceRecords.participants` y `participantSessions`) y los guarda en `clasemeet_participant`.
+- Cada participante con cuenta se identifica por su correo con la **Admin SDK Directory API**
+  (`users.get`, `viewType=domain_public`), que requiere el scope
+  `https://www.googleapis.com/auth/admin.directory.user.readonly` en la delegación **y la API "Admin SDK"
+  habilitada en el proyecto** de la cuenta de servicio. Sin ella se compara por nombre completo con los
+  matriculados (solo si hay una coincidencia única).
+- 15 minutos después del fin, si nadie sigue conectado, se crea (o reutiliza, si empieza a ±30 min) una
+  sesión en la primera actividad Asistencia del curso y se marca a cada estudiante:
+  **Retraso** si entró más de 10 min tarde, **Falta** si estuvo conectado menos del 50 % del horario o no
+  entró, y **Presente** en otro caso (ajustes *Minutos de tolerancia* y *Permanencia mínima*).
+  El estado se elige por nota (Presente = la mayor, Falta = la menor, Retraso = el siguiente en el orden de
+  instalación), así que funciona con cualquier idioma.
+- Las marcas llevan la nota `[Meet] …`. Las que un docente cambia a mano no se tocan nunca; el botón
+  "Volver a calcular desde Meet" solo reescribe las que siguen teniendo esa nota.
+- El docente ve en la actividad la tabla de asistencia (entrada, salida, tiempo, % y resultado).
+- Prueba de extremo a extremo hecha contra la API real dentro de una transacción revertida
+  (espacio `spaces/Pb7Nhmo5wvYB`).

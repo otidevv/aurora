@@ -16,10 +16,11 @@
 
 namespace mod_clasemeet\task;
 
+use mod_clasemeet\attendance;
 use mod_clasemeet\manager;
 
 /**
- * Scheduled task: pull new recordings for every Meet class.
+ * Scheduled task: pull new recordings and participants for every Meet class, and write attendance.
  *
  * @package    mod_clasemeet
  * @copyright  2026 Universidad Nacional Amazónica de Madre de Dios
@@ -46,6 +47,21 @@ class sync_recordings extends \core\task\scheduled_task {
                 mtrace("clasemeet {$instance->id} ({$instance->name}): {$added} new recording(s)");
             } catch (\Throwable $e) {
                 mtrace("clasemeet {$instance->id} ({$instance->name}): ERROR " . $e->getMessage());
+            }
+
+            if (!attendance::should_poll($instance)) {
+                continue;
+            }
+            try {
+                $count = attendance::sync_participants($instance);
+                mtrace("clasemeet {$instance->id}: {$count} participant(s)");
+                if (attendance::enabled() && attendance::class_is_over($instance)) {
+                    $written = attendance::apply($instance);
+                    mtrace("clasemeet {$instance->id}: attendance " .
+                        ($written === null ? 'not written (no attendance activity in the course)' : "{$written} log(s) written"));
+                }
+            } catch (\Throwable $e) {
+                mtrace("clasemeet {$instance->id}: attendance ERROR " . $e->getMessage());
             }
         }
     }

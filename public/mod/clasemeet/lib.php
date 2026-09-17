@@ -139,6 +139,7 @@ function clasemeet_delete_instance($id) {
     }
     $DB->delete_records('event', ['modulename' => 'clasemeet', 'instance' => $id]);
     $DB->delete_records('clasemeet_recording', ['clasemeetid' => $id]);
+    $DB->delete_records('clasemeet_participant', ['clasemeetid' => $id]);
     $DB->delete_records('clasemeet', ['id' => $id]);
     return true;
 }

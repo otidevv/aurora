@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026091501;
+$plugin->version   = 2026091700;
 $plugin->requires  = 2026041000;
 $plugin->component = 'mod_clasemeet';
 $plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.1.0';
+$plugin->release   = '0.2.0';

@@ -56,6 +56,40 @@ if ($ADMIN->fulltree) {
         0
     ));
 
+    $settings->add(new admin_setting_heading('mod_clasemeet/attendanceheading',
+        get_string('attendanceheading', 'mod_clasemeet'), get_string('attendanceheading_desc', 'mod_clasemeet')));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'mod_clasemeet/attendancesync',
+        get_string('attendancesync', 'mod_clasemeet'),
+        get_string('attendancesync_desc', 'mod_clasemeet'),
+        1
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'mod_clasemeet/directoryuser',
+        get_string('directoryuser', 'mod_clasemeet'),
+        get_string('directoryuser_desc', 'mod_clasemeet'),
+        '',
+        PARAM_EMAIL
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'mod_clasemeet/latethreshold',
+        get_string('latethreshold', 'mod_clasemeet'),
+        get_string('latethreshold_desc', 'mod_clasemeet'),
+        10,
+        PARAM_INT
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'mod_clasemeet/minpercent',
+        get_string('minpercent', 'mod_clasemeet'),
+        get_string('minpercent_desc', 'mod_clasemeet'),
+        50,
+        PARAM_INT
+    ));
+
     $settings->add(new admin_setting_configtextarea(
         'mod_clasemeet/scopes',
         get_string('scopes', 'mod_clasemeet'),

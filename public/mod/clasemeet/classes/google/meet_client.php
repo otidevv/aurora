@@ -37,6 +37,8 @@ class meet_client {
     private const DRIVE = 'https://www.googleapis.com/drive/v3';
     /** @var string */
     private const CALENDAR = 'https://www.googleapis.com/calendar/v3';
+    /** @var string */
+    private const DIRECTORY = 'https://admin.googleapis.com/admin/directory/v1';
 
     /**
      * @param string $token OAuth access token acting as the space owner.
@@ -100,6 +102,63 @@ class meet_client {
     public function list_recordings(string $record): array {
         $page = $this->request('GET', self::MEET . '/' . $record . '/recordings', null, ['pageSize' => 50]);
         return $page['recordings'] ?? [];
+    }
+
+    /**
+     * Everyone who joined a conference (one entry per person, with first join and last leave).
+     *
+     * @param string $record e.g. conferenceRecords/xyz
+     * @return array[] participant resources (name, earliestStartTime, latestEndTime, signedinUser|anonymousUser|phoneUser)
+     */
+    public function list_participants(string $record): array {
+        return $this->list_all(self::MEET . '/' . $record . '/participants', 'participants', ['pageSize' => 250]);
+    }
+
+    /**
+     * Each connection of one participant (a person who reconnects has several).
+     *
+     * @param string $participant e.g. conferenceRecords/xyz/participants/abc
+     * @return array[] participantSession resources (name, startTime, endTime)
+     */
+    public function list_participant_sessions(string $participant): array {
+        return $this->list_all(self::MEET . '/' . $participant . '/participantSessions', 'participantSessions',
+            ['pageSize' => 250]);
+    }
+
+    /**
+     * Primary e-mail of a Workspace user from the Admin SDK Directory API (domain-public view, so the
+     * impersonated account does not need to be an administrator).
+     *
+     * @param string $userid numeric id, as in the Meet "users/{id}" resource
+     * @return string e-mail, lower case
+     */
+    public function directory_email(string $userid): string {
+        $user = $this->request('GET', self::DIRECTORY . '/users/' . urlencode($userid), null,
+            ['viewType' => 'domain_public', 'projection' => 'basic']);
+        return \core_text::strtolower((string) ($user['primaryEmail'] ?? ''));
+    }
+
+    /**
+     * Follow nextPageToken and merge one list field of every page.
+     *
+     * @param string $url
+     * @param string $field
+     * @param array $query
+     * @return array[]
+     */
+    private function list_all(string $url, string $field, array $query = []): array {
+        $items = [];
+        $pagetoken = null;
+        do {
+            $pagequery = $query;
+            if ($pagetoken) {
+                $pagequery['pageToken'] = $pagetoken;
+            }
+            $page = $this->request('GET', $url, null, $pagequery);
+            $items = array_merge($items, $page[$field] ?? []);
+            $pagetoken = $page['nextPageToken'] ?? null;
+        } while ($pagetoken);
+        return $items;
     }
 
     /**
@@ -204,7 +263,7 @@ class meet_client {
         if ($status < 200 || $status >= 300 || !is_array($data)) {
             $message = $data['error']['message'] ?? ($curl->error ?: "HTTP $status");
             $statusname = $data['error']['status'] ?? '';
-            throw new moodle_exception('errorapi', 'mod_clasemeet', '', trim("$statusname $message"));
+            throw new moodle_exception('errorapi', 'mod_clasemeet', '', trim("$statusname $message"), "HTTP $status");
         }
         return $data;
     }

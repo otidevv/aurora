@@ -22,12 +22,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_clasemeet\attendance;
 use mod_clasemeet\manager;
 
 require('../../config.php');
 
 $id = required_param('id', PARAM_INT);
 $sync = optional_param('sync', 0, PARAM_BOOL);
+$applyattendance = optional_param('applyattendance', 0, PARAM_BOOL);
 
 $cm = get_coursemodule_from_id('clasemeet', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
@@ -44,11 +46,30 @@ if ($sync && $canmanage) {
     require_sesskey();
     try {
         $added = manager::sync_recordings($instance);
+        if (!empty($instance->timestart) && time() >= $instance->timestart - 2 * HOURSECS) {
+            attendance::sync_participants($instance);
+            if (attendance::enabled() && empty($instance->attendancetaken) && attendance::class_is_over($instance)) {
+                attendance::apply($instance);
+            }
+        }
         redirect($url, get_string('recordingsfound', 'mod_clasemeet', $added), null,
             \core\output\notification::NOTIFY_SUCCESS);
     } catch (moodle_exception $e) {
         redirect($url, $e->getMessage(), null, \core\output\notification::NOTIFY_ERROR);
     }
+}
+
+if ($applyattendance && $canmanage) {
+    require_sesskey();
+    if (!attendance::class_is_over($instance)) {
+        redirect($url, get_string('attendancepending', 'mod_clasemeet'), null, \core\output\notification::NOTIFY_WARNING);
+    }
+    $written = attendance::apply($instance, !empty($instance->attendancetaken));
+    if ($written === null) {
+        redirect($url, get_string('attendancenoactivity', 'mod_clasemeet'), null, \core\output\notification::NOTIFY_WARNING);
+    }
+    redirect($url, get_string('attendanceapplied', 'mod_clasemeet', $written), null,
+        \core\output\notification::NOTIFY_SUCCESS);
 }
 
 $event = \mod_clasemeet\event\course_module_viewed::create([
@@ -101,6 +122,99 @@ if ($canmanage && $hasunshared) {
     }
 }
 
+// Meet attendance (teachers only).
+$attendancedata = [];
+if ($canmanage && !empty($instance->timestart)) {
+    $timefmt = get_string('strftimetime', 'langconfig');
+    $people = attendance::people($instance);
+    $ended = time() > (int) $instance->timeend;
+    $resultclass = [
+        attendance::PRESENT => 'bg-success',
+        attendance::LATE => 'bg-warning text-dark',
+        attendance::ABSENT => 'bg-danger',
+    ];
+    $attrows = [];
+    $seen = [];
+    foreach ($people as $person) {
+        $user = $person->userid ? core_user::get_user($person->userid) : null;
+        $result = attendance::classify($instance, $person);
+        $typekey = 'participanttype_' . $person->usertype;
+        $attrows[] = [
+            'name' => $user ? fullname($user) : $person->displayname,
+            'meetname' => $user && $person->displayname !== fullname($user) ? $person->displayname : '',
+            'email' => $person->email,
+            'identified' => (bool) $user,
+            'profileurl' => $user ? (new moodle_url('/user/view.php', ['id' => $user->id, 'course' => $course->id]))->out(false) : '',
+            'typelabel' => get_string_manager()->string_exists($typekey, 'mod_clasemeet') ? get_string($typekey, 'mod_clasemeet') : '',
+            'firstjoin' => $person->firstjoin ? userdate($person->firstjoin, $timefmt) : '',
+            'lastleave' => $person->connected ? '' : ($person->lastleave ? userdate($person->lastleave, $timefmt) : ''),
+            'connected' => $person->connected,
+            'time' => format_time($person->duration),
+            'percent' => attendance::percent($instance, $person->duration),
+            'sessions' => $person->sessions,
+            'result' => $ended ? get_string('result_' . $result, 'mod_clasemeet') : '',
+            'resultclass' => $resultclass[$result],
+        ];
+        if ($person->userid) {
+            $seen[$person->userid] = true;
+        }
+    }
+    // Students who never joined (only meaningful once the class has ended).
+    $found = attendance::attendance_activity((int) $course->id);
+    if ($ended && $people) {
+        $studentcontext = $found ? context_module::instance($found[1]->id) : context_course::instance($course->id);
+        $capability = $found ? 'mod/attendance:canbelisted' : 'mod/clasemeet:view';
+        $namefields = implode(', ', array_map(fn($f) => 'u.' . $f, \core_user\fields::get_name_fields()));
+        foreach (get_enrolled_users($studentcontext, $capability, 0, 'u.id, u.email, ' . $namefields, 'u.lastname, u.firstname',
+                0, 0, true) as $student) {
+            if (isset($seen[$student->id]) || has_capability('mod/clasemeet:manage', $context, $student)) {
+                continue;
+            }
+            $attrows[] = [
+                'name' => fullname($student),
+                'meetname' => '',
+                'email' => $student->email,
+                'identified' => true,
+                'profileurl' => (new moodle_url('/user/view.php', ['id' => $student->id, 'course' => $course->id]))->out(false),
+                'typelabel' => '',
+                'firstjoin' => '',
+                'lastleave' => '',
+                'connected' => false,
+                'time' => get_string('notjoined', 'mod_clasemeet'),
+                'percent' => 0,
+                'sessions' => 0,
+                'result' => get_string('result_absent', 'mod_clasemeet'),
+                'resultclass' => $resultclass[attendance::ABSENT],
+            ];
+        }
+    }
+
+    $sessionurl = '';
+    if ($found && !empty($instance->attendancesessionid)) {
+        $sessionurl = (new moodle_url('/mod/attendance/take.php', [
+            'id' => $found[1]->id,
+            'sessionid' => $instance->attendancesessionid,
+            'grouptype' => 0,
+        ]))->out(false);
+    }
+    $attendancedata = [
+        'rows' => $attrows,
+        'hasrows' => !empty($attrows),
+        'enabled' => attendance::enabled(),
+        'hasactivity' => (bool) $found,
+        'taken' => !empty($instance->attendancetaken),
+        'takentext' => !empty($instance->attendancetaken)
+            ? get_string('attendancetaken', 'mod_clasemeet', userdate($instance->attendancetaken)) : '',
+        'sessionurl' => $sessionurl,
+        'canapply' => attendance::enabled() && $found && attendance::class_is_over($instance),
+        'applyurl' => (new moodle_url($url, ['applyattendance' => 1, 'sesskey' => sesskey()]))->out(false),
+        'rules' => get_string('attendancerules', 'mod_clasemeet', (object) [
+            'late' => attendance::late_minutes(),
+            'percent' => attendance::min_percent(),
+        ]),
+    ];
+}
+
 $status = clasemeet_schedule_status($instance);
 $templatedata = [
     'sharingnotice' => $sharingnotice,
@@ -121,6 +235,7 @@ $templatedata = [
     'canmanage' => $canmanage,
     'syncurl' => (new moodle_url($url, ['sync' => 1, 'sesskey' => sesskey()]))->out(false),
     'lastsync' => $instance->lastsync ? userdate($instance->lastsync) : get_string('never', 'mod_clasemeet'),
+    'attendance' => $attendancedata ?: false,
 ];
 
 echo $OUTPUT->header();
