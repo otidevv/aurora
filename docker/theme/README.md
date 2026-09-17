@@ -266,3 +266,33 @@ de la marca que rellena arriba y abajo. Para volver al recorte que llena la fran
 
 **Franja retirada** (mismo día, a petición del usuario): `login-aurora.html` vuelve a ser solo la imagen a
 todo el ancho con la tarjeta centrada. Las notas anteriores sobre la franja quedan como historial.
+
+### Fondo con la estudiante y tarjeta a la derecha (2026-09-17)
+
+El fondo es ahora `public/banner/web/fondo_chica.jpg` (111 KB), hecho con `resize_image.php` a partir de
+`public/banner/fondochica.png` (original no subido). La estudiante está a la izquierda y la mitad derecha
+es una pared despejada, así que en escritorio (≥ 992 px) la tarjeta va alineada a la derecha
+(`justify-content: flex-end`, margen `clamp(2rem, 8vw, 12rem)`); en móvil sigue centrada. Encuadre
+`15% 25%`: prioriza el lado de la estudiante y deja legibles las palabras de la pared en monitores
+panorámicos. `fondo_login.jpg` queda en el repositorio sin uso. Comprobado a 3440, 1920, 1366, 1024 y 390 px.
+
+```sh
+docker compose exec -T web sh -c '
+  php /var/www/html/docker/theme/resize_image.php /var/www/html/public/banner/fondochica.png /var/www/html/public/banner/web/fondo_chica.jpg 1672 84 &&
+  php admin/cli/cfg.php --name=additionalhtmlfooter --set="$(cat /var/www/html/docker/theme/login-aurora.html)" &&
+  php admin/cli/purge_caches.php'
+```
+
+Versión panorámica: en ventanas más del doble de anchas que altas (`@media (min-aspect-ratio: 2/1)`, p. ej.
+2560×1080 o 3440×1440) el fondo cambia a `public/banner/web/fondo_chica_ancha.jpg` (1960×802, 107 KB, hecha
+de `public/banner/fondochica_ancha.png`, original no subido), encuadre `center 30%`. En 16:9, portátiles y
+móvil se mantiene `fondo_chica.jpg`.
+
+```sh
+docker compose exec -T web php /var/www/html/docker/theme/resize_image.php /var/www/html/public/banner/fondochica_ancha.png /var/www/html/public/banner/web/fondo_chica_ancha.jpg 1960 84
+```
+
+**Imagen única** (mismo día, a petición del usuario): se retiró `fondo_chica.jpg` y la regla por proporción.
+`login-aurora.html` usa solo `fondo_chica_ancha.jpg` en todas las pantallas, con encuadre `15% 30%`
+(en 16:9, portátiles y móvil se recortan los lados y se prioriza el de la estudiante). Comprobado a 3440,
+1920, 1366, 1024 y 390 px.

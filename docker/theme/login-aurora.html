@@ -2,8 +2,9 @@
 /*
  * Login de Aurora sobre el diseño estándar de Moodle (Boost).
  * Se guarda en Administración del sitio > Apariencia > HTML adicional > Antes de cerrar BODY.
- * - Sin panel izquierdo: la imagen de Aurora ocupa todo el ancho.
- * - Formulario centrado sobre una tarjeta blanca.
+ * - Sin panel izquierdo: la foto ocupa todo el ancho.
+ * - Formulario sobre una tarjeta blanca: a la derecha en escritorio (sobre la pared despejada de la foto),
+ *   centrado en móvil.
  * La URL de la imagen es relativa a /login/, así que funciona aunque Moodle esté en un subdirectorio.
  */
 body.pagelayout-login .login-layout-left { display: none !important; }
@@ -11,11 +12,12 @@ body.pagelayout-login .login-layout-left { display: none !important; }
 body.pagelayout-login .login-layout-right {
     flex: 0 0 100%;
     max-width: 100%;
-    background-color: #eef4fb;
-    background-image: url("../banner/web/fondo_login.jpg");
+    background-color: #f1efee;
+    background-image: url("../banner/web/fondo_chica_ancha.jpg");
     background-size: cover;
-    /* Pantallas más anchas que la imagen recortan arriba y abajo: se prioriza la parte inferior (río, ondas y la "A"). */
-    background-position: center 75%;
+    /* Imagen panorámica (1960×802). La estudiante está a la izquierda: en pantallas 16:9 y en móvil se
+       recortan los lados, así que se prioriza ese lado; en monitores muy anchos, la altura de su cara. */
+    background-position: 15% 30%;
 }
 
 /* #region-main-box: Boost quita el relleno lateral de este contenedor en móvil con un selector de id. */
@@ -30,6 +32,16 @@ body.pagelayout-login #region-main-box.login-layout-right-content {
     box-shadow: 0 18px 50px rgba(20, 40, 90, .18);
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
+}
+
+@media (min-width: 992px) {
+    body.pagelayout-login .login-layout-right {
+        justify-content: flex-end;
+        padding-right: clamp(2rem, 8vw, 12rem);
+    }
+    body.pagelayout-login #region-main-box.login-layout-right-content {
+        margin: auto 0;
+    }
 }
 
 @media (max-width: 991.98px) {
