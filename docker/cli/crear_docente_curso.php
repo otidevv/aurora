@@ -4,7 +4,7 @@
 // Uso (dentro del contenedor web):
 //   php crear_docente_curso.php <correo> "<Nombre>" "<Apellidos>" "<Nombre del curso>" <shortname> [password]
 define('CLI_SCRIPT', true);
-require '/var/www/html/config.php';
+require __DIR__ . '/../../config.php';
 require_once($CFG->dirroot . '/user/lib.php');
 require_once($CFG->dirroot . '/course/lib.php');
 require_once($CFG->libdir . '/enrollib.php');

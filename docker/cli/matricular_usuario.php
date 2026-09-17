@@ -4,7 +4,7 @@
 // Uso (dentro del contenedor web):
 //   php matricular_usuario.php <username_o_correo> <shortname_curso> <rol: student|editingteacher|teacher> ["Nombre" "Apellidos" [password]]
 define('CLI_SCRIPT', true);
-require '/var/www/html/config.php';
+require __DIR__ . '/../../config.php';
 require_once($CFG->dirroot . '/user/lib.php');
 require_once($CFG->libdir . '/enrollib.php');
 

@@ -5,7 +5,7 @@
 //   php probar_clasemeet.php <correo_docente> <shortname_curso> "<Nombre de la clase>" [seccion=1] ["YYYY-MM-DD HH:MM"] ["YYYY-MM-DD HH:MM"]
 //   (inicio y fin en la zona horaria del sitio; por defecto mañana de 08:00 a 10:00)
 define('CLI_SCRIPT', true);
-require '/var/www/html/config.php';
+require __DIR__ . '/../../config.php';
 require_once($CFG->dirroot . '/course/modlib.php');
 require_once($CFG->dirroot . '/course/lib.php');
 

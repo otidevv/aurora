@@ -4,7 +4,7 @@
 // Uso (dentro del contenedor web):
 //   php agregar_enlace_meet.php <shortname_curso> "<Nombre de la clase>" <url_meet> [seccion=1] [descripcion]
 define('CLI_SCRIPT', true);
-require '/var/www/html/config.php';
+require __DIR__ . '/../../config.php';
 require_once($CFG->dirroot . '/course/modlib.php');
 require_once($CFG->dirroot . '/course/lib.php');
 require_once($CFG->libdir . '/resourcelib.php');
