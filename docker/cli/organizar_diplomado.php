@@ -3,18 +3,20 @@
 // fechas o docentes.
 //   1. Aula general: sección "Módulos del diplomado" con una tarjeta por módulo (portada, docente, fechas,
 //      botón) y, en cada módulo, un enlace "Volver al diplomado".
-//   2. Matrícula única: cada módulo tiene una matrícula por metaenlace al Aula general. Solo se sincroniza
-//      el rol de estudiante; los docentes se matriculan a mano en su módulo.
+//   2. Matrícula única (opcional, --matricula-unica): metaenlace de cada módulo al Aula general, de modo que
+//      matricular en el Aula general da acceso a los seis módulos. Por defecto NO se usa: cada estudiante se
+//      matricula en el módulo que cursa (matricular_estudiantes.php) y solo ve ese módulo y el Aula general.
 //   4. Apertura por fechas: activa la tarea de Moodle que muestra los cursos al llegar su fecha de inicio
 //      (cada hora) y oculta los módulos cuya fecha aún no llega. Sin fecha, el módulo no se toca.
 //
-// Uso:  php organizar_diplomado.php [--simular]
+// Uso:  php organizar_diplomado.php [--simular] [--matricula-unica]
 define('CLI_SCRIPT', true);
 require __DIR__ . '/../../config.php';
 require_once($CFG->dirroot . '/course/lib.php');
 require_once($CFG->libdir . '/enrollib.php');
 
 $simular = in_array('--simular', $argv, true);
+$matriculaunica = in_array('--matricula-unica', $argv, true);
 $general = 'DTIC-TIC-GENERAL';
 
 // shortname => [docente, correo, inicio, fin] con fechas 'AAAA-MM-DD' (hora de Lima) o null si no se conocen.
@@ -68,24 +70,28 @@ foreach ($modulos as $shortname => [$docente, $correo, $inicio, $fin]) {
     $courses[$shortname] = $course;
 }
 
-// --- 2. Matrícula por metaenlace ------------------------------------------------------------------
-\core\plugininfo\enrol::enable_plugin('meta', 1);
-// Solo se copia el rol de estudiante: un docente del Aula general no debe volverse docente de todos los módulos.
-$nosync = $DB->get_fieldset_select('role', 'id', "archetype <> 'student' OR archetype IS NULL");
-set_config('nosyncroleids', implode(',', $nosync), 'enrol_meta');
-// Solo se inscribe en los módulos a quien tiene un rol sincronizado (estudiante) en el Aula general.
-set_config('syncall', 0, 'enrol_meta');
+// --- 2. Matrícula por metaenlace (solo con --matricula-unica) --------------------------------------
+if ($matriculaunica) {
+    \core\plugininfo\enrol::enable_plugin('meta', 1);
+    // Solo se copia el rol de estudiante: un docente del Aula general no debe volverse docente de todos los módulos.
+    $nosync = $DB->get_fieldset_select('role', 'id', "archetype <> 'student' OR archetype IS NULL");
+    set_config('nosyncroleids', implode(',', $nosync), 'enrol_meta');
+    // Solo se inscribe en los módulos a quien tiene un rol sincronizado (estudiante) en el Aula general.
+    set_config('syncall', 0, 'enrol_meta');
 
-$meta = enrol_get_plugin('meta');
-require_once($CFG->dirroot . '/enrol/meta/locallib.php');
-foreach ($courses as $shortname => $course) {
+    $meta = enrol_get_plugin('meta');
+    require_once($CFG->dirroot . '/enrol/meta/locallib.php');
+    foreach ($courses as $shortname => $course) {
     if (!$DB->record_exists('enrol', ['enrol' => 'meta', 'courseid' => $course->id, 'customint1' => $parent->id])) {
         $meta->add_instance($course, ['customint1' => $parent->id]);
         echo "{$shortname}: matrícula por metaenlace al Aula general creada\n";
     }
     enrol_meta_sync($course->id);
+    }
+    echo "estudiantes del Aula general sincronizados en los módulos\n";
+} else {
+    echo "matrícula única: desactivada (cada estudiante ve solo su módulo y el Aula general)\n";
 }
-echo "estudiantes del Aula general sincronizados en los módulos\n";
 
 // --- 1. Tarjetas en el Aula general -----------------------------------------------------------
 // Sección 1 del Aula general.
@@ -111,6 +117,16 @@ foreach ($courses as $shortname => $course) {
         $imgurl = '@@PLUGINFILE@@/' . rawurlencode($copy->get_filename());
         break;
     }
+    // Foto del docente (la importa importar_fotos_google.php); si no tiene, se usa la silueta de Moodle.
+    $teacher = $DB->get_record_select('user', 'LOWER(email) = ? AND deleted = 0', [\core_text::strtolower($correo)]);
+    $avatar = '';
+    if ($teacher) {
+        $picture = new \core\output\user_picture($teacher);
+        $picture->size = 100;
+        $avatar = '<img class="rounded-circle border border-2 border-white shadow-sm" width="56" height="56" '
+            . 'src="' . $picture->get_url($PAGE)->out(false) . '" alt="">';
+    }
+
     $title = preg_replace('/^Módulo\s*\d+\s*:\s*/u', '', $course->fullname);
     if ($course->startdate && $inicio) {
         $fechas = userdate($course->startdate, '%d %b') . ($course->enddate ? ' – ' . userdate($course->enddate, '%d %b %Y') : '');
@@ -130,7 +146,8 @@ foreach ($courses as $shortname => $course) {
         . '<div class="card-body d-flex flex-column">'
         . '<div class="small text-uppercase text-muted mb-1">Módulo ' . $n . '</div>'
         . '<h4 class="h5 card-title mb-2"><a class="text-reset" href="' . $url . '">' . s($title) . '</a></h4>'
-        . '<p class="card-text small mb-1"><i class="fa fa-user me-1" aria-hidden="true"></i>' . s($docente) . '</p>'
+        . '<div class="d-flex align-items-center gap-2 mb-2">' . $avatar
+            . '<span class="small">' . s($docente) . '</span></div>'
         . '<p class="card-text small text-muted mb-3"><i class="fa fa-calendar me-1" aria-hidden="true"></i>'
             . s($fechas) . '</p>'
         . $boton
@@ -139,6 +156,8 @@ foreach ($courses as $shortname => $course) {
 $summary = '<p>El diplomado tiene <strong>seis módulos</strong>. Cada uno es un aula con su docente, sus clases en '
     . 'Google Meet, sus prácticas y su asistencia. Entra desde aquí; tu avance aparece en la barra de progreso '
     . 'de cada módulo y en <em>Mis cursos</em>.</p>'
+    . '<p class="text-muted small">Solo puedes entrar a los módulos en los que estés matriculado. '
+    . 'Los demás aparecen aquí para que conozcas el plan completo del diplomado.</p>'
     . '<div class="row">' . $cards . '</div>';
 course_update_section($parent, $section, [
     'name' => 'Módulos del diplomado',
