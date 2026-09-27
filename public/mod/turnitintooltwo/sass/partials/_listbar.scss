@@ -1,0 +1,251 @@
+/*
+ * Listbar - Contains datatables links, dropdowns and search
+ */
+
+.mod_turnitintooltwo_listbar-container {
+    display: block;
+    width: 100%;
+}
+
+.mod_turnitintooltwo_listbar {
+    background: #fff;
+    border: 1px solid $border-color;
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 10px;
+    padding: 10px;
+
+    label,
+    input,
+    select {
+        margin: 0;
+    }
+
+    select,
+    input {
+        height: 30px;
+        padding: 0 5px;
+        border: 1px solid #EFEFEF;
+        -webkit-border-radius: 4px;
+        -moz-border-radius: 4px;
+        border-radius: 4px;
+        background: #fff;
+    }
+
+    .mod_turnitintooltwo_refresh_link,
+    .mod_turnitintooltwo_refreshing_link,
+    .mod_turnitintooltwo_nonsubmitters_link {
+        flex: 0 0 auto;
+        margin-left: 12px;
+        padding: 5px 0;
+        width: 195px;
+        text-align: right;
+    }
+
+    .mod_turnitintooltwo_nonsubmitters_link {
+        text-decoration: none;
+        display: none;
+        width: auto;
+        white-space: nowrap;
+        order: 5;
+    }
+
+    /*
+     * Messages inbox link in listbar
+     */
+    .mod_turnitintooltwo_messages_inbox {
+        flex: 0 0 auto;
+        margin-left: 12px;
+        padding: 5px 0;
+        text-decoration: none;
+        text-align: right;
+        order: 6;
+    }
+
+    .mod_turnitintooltwo_messages_loading {
+        float: none !important;
+        margin: 0 !important;
+    }
+
+    // Zip file download links
+    .mod_turnitintooltwo_zip_downloads {
+        flex: 0 0 auto;
+        position: relative;
+        top: 4px;
+        height: 22px;
+
+        img {
+            position: relative;
+            top: 4px;
+            left: -2px;
+        }
+
+        div.mod_turnitintooltwo_origchecked_zip_open,
+        a.mod_turnitintooltwo_gmpdfzip_box {
+            padding: 3px 16px;
+            display: block;
+        }
+
+        a.mod_turnitintooltwo_gmpdfzip_box:hover {
+            background: $hover-blue;
+            color: $white;
+        }
+
+        .mod_turnitintooltwo_zip_open {
+            display: inline;
+        }
+
+        .mod_turnitintooltwo_dropdown-menu .mod_turnitintooltwo_origchecked_zip_open:hover {
+            background-color: $hover-blue;
+            display: block;
+            line-height: 20px;
+            color: $white;
+            font-weight: normal;
+        }
+
+        .mod_turnitintooltwo_dropdown-menu {
+            white-space: nowrap;
+            margin-top: 2px !important;
+        }
+    }
+
+    /*
+     * DataTables filter (search bar)
+     */
+    .dataTables_filter {
+        float: none !important;
+        margin-left: 12px;
+        white-space: nowrap;
+        flex: 0 0 250px;
+        min-width: 0;
+        text-align: right !important;
+        order: 3;
+
+        label {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+            margin: 0;
+            width: 100%;
+        }
+
+        input[type="search"] {
+            width: 180px;
+        }
+    }
+
+    /*
+     * DataTables length (how many per page)
+     */
+    .dataTables_length {
+        float: none !important;
+        flex: 0 0 auto;
+        order: 1;
+    }
+
+    .mod_turnitintooltwo_zip_downloads {
+        order: 2;
+    }
+
+    // Keep controls in a consistent order even when the left drawer changes layout width.
+    .mod_turnitintooltwo_refresh_link,
+    .mod_turnitintooltwo_refreshing_link {
+        order: 4;
+        margin-left: auto;
+    }
+}
+
+@media screen and (max-width: 1500px) {
+    .dataTables_filter {
+        flex-basis: 220px;
+
+        input[type="search"] {
+            width: 150px;
+        }
+    }
+}
+
+@media screen and (max-width: 1460px) {
+    .mod_turnitintooltwo_listbar {
+        font-size: 13px;
+    } 
+}
+
+@media screen and (max-width: 1350px) {
+    .dataTables_filter {
+        flex-basis: 170px;
+
+        input[type="search"] {
+            width: 80px;
+        }
+    }
+
+    .mod_turnitintooltwo_listbar .mod_turnitintooltwo_messages_inbox,
+    .mod_turnitintooltwo_listbar .mod_turnitintooltwo_refresh_link,
+    .mod_turnitintooltwo_listbar .mod_turnitintooltwo_refreshing_link {
+        margin-left: 5px;
+        width: auto;
+    }
+
+    .mod_turnitintooltwo_listbar .mod_turnitintooltwo_refresh_link {
+        margin-left: auto;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    .mod_turnitintooltwo_listbar .mod_turnitintooltwo_refreshing_link {
+        margin-left: auto;
+    }
+
+    .mod_turnitintooltwo_listbar {
+        #mod_turnitintooltwo_download_links {
+            margin-left: 5px;
+
+            .btn.dropdown-toggle {
+                padding-left: 6px;
+                padding-right: 6px;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1260px) {
+    .mod_turnitintooltwo_listbar {
+        font-size: 12px;
+
+        .mod_turnitintooltwo_nonsubmitters_link {
+            width: auto;
+            margin-left: 0;
+            padding: 5px 5px;
+        }
+    }
+
+    .dataTables_filter {
+        flex-basis: 185px;
+
+        input[type="search"] {
+            width: 95px;
+        }
+    }
+
+    .mod_turnitintooltwo_listbar {
+        #mod_turnitintooltwo_download_links {
+            .btn.dropdown-toggle {
+                padding-right: 0;
+            }
+        }
+    }
+}
+
+// do not support Firefox
+@media screen and (max-width: 1024px) and (min-resolution: 1.1dppx) {
+    .mod_turnitintooltwo_listbar {
+        font-size: 11px;
+    }
+    .dataTables_filter input[type="search"] {
+        width: 45px;
+    }
+}
