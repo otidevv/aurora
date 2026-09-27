@@ -1,0 +1,30 @@
+// ============================================================================
+// Tema Aurora: variables. Siguen el sistema de diseño Aurora
+// (https://claude.ai/artifact/UhumDhTPKUjchUp4a2TVEh) el header y el panel de
+// notificaciones; el resto del sitio es Boost tal cual. Se cargan ANTES del preset de Boost.
+// ============================================================================
+
+// Tipografía Inter (header y panel de notificaciones). El compilador SCSS de Moodle no
+// admite @import url(), así que la fuente se carga en el <head> desde classes/hook_callbacks.php.
+
+// --- Tokens Aurora (usados en post.scss) -------------------------------------
+$au-navy-900:  #14224d;  // Fondo del header.
+$au-navy-800:  #1d3270;  // Hover en el header, acento del panel.
+$au-navy-700:  #2a4590;  // Presionado.
+$au-fg:        #ffffff;  // Texto e iconos activos sobre navy.
+$au-fg-muted:  #c5cfea;  // Texto e iconos inactivos sobre navy.
+$au-line:      #2f4a99;  // Línea bajo el header y separadores.
+$au-cyan:      #35c8f2;  // Pestaña activa e interruptor ON.
+$au-amber:     #ffc53d;  // Insignia (texto en navy-900).
+$au-focus:     #8fe3ff;  // Anillo de foco.
+$au-surface:   #f4f6fa;
+$au-white:     #ffffff;
+$au-ink:       #1c2230;
+$au-ink-muted: #5b667a;
+$au-border:    #dfe4ee;
+$au-target:    40px;     // Área mínima de todo control del header.
+$au-indicator: 3px;      // Subrayado de la pestaña activa.
+$au-font:      "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+// --- Boost ------------------------------------------------------------------
+$navbar-height: 64px;    // header-height del sistema de diseño.

@@ -1,0 +1,83 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template theme_aurora/message_popup/notification_content_item
+
+    Sobrescribe message_popup/notification_content_item según el tablero "Notificaciones":
+    fila entera clicable con icono en círculo, título, contexto en gris, hora, punto de
+    no leída (o chevrón si ya se leyó). El enlace "Ver notificación completa" queda solo
+    para teclado y lectores de pantalla.
+
+    Context variables required for this template:
+    * contexturl A link to the notification resource
+    * contexturlname The name of the notification context (course, activity)
+    * read If the notification is read or not
+    * subject The subject text
+    * id Notification id
+    * iconurl The URL for the notification icon
+    * shortenedsubject A shortened version of subject text
+    * timecreatedpretty Pretty formatted time stamp
+    * viewmoreurl The link to the full notification
+
+    Example context (json):
+    {
+        "contexturl": "http://www.moodle.com",
+        "contexturlname": "Programación Web",
+        "read": false,
+        "subject": "You have a notification",
+        "id": 1,
+        "iconurl": "http://www.moodle.com",
+        "shortenedsubject": "You have a...",
+        "timecreatedpretty": "5 minutes ago",
+        "viewmoreurl": "http://www.moodle.com"
+    }
+}}
+<div class="content-item-container notification {{^read}}unread{{/read}}"
+    data-region="notification-content-item-container"
+    data-id="{{id}}"
+    role="listitem">
+
+    {{#contexturl}}
+    <a class="context-link" href="{{{.}}}" data-action="content-item-link"
+    {{/contexturl}}
+    {{^contexturl}}
+    <div class="context-link" tabindex="0"
+    {{/contexturl}}
+        {{#read}}aria-label="{{subject}}"{{/read}}
+        {{^read}}aria-label="{{#str}} unreadnotification, message, {{subject}} {{/str}}"{{/read}}>
+
+        <span class="aurora-notif-icon" aria-hidden="true">
+            {{#iconurl}}<img src="{{{.}}}" alt="">{{/iconurl}}
+        </span>
+        <span class="content-item-body">
+            <span class="notification-message">{{shortenedsubject}}</span>
+            {{#contexturlname}}<span class="aurora-notif-context">{{.}}</span>{{/contexturlname}}
+            <span class="content-item-footer"><span class="timestamp">{{timecreatedpretty}}</span></span>
+        </span>
+        {{^read}}<span class="aurora-notif-dot" aria-hidden="true"></span>{{/read}}
+        {{#read}}<span class="aurora-notif-chevron" aria-hidden="true">{{#pix}} t/collapsed, core {{/pix}}</span>{{/read}}
+    {{#contexturl}}
+    </a>
+    {{/contexturl}}
+    {{^contexturl}}
+    </div>
+    {{/contexturl}}
+
+    {{#viewmoreurl}}
+        <a href="{{{.}}}" class="view-more visually-hidden-focusable" data-action="view-more">{{#str}} viewfullnotification, message {{/str}}</a>
+    {{/viewmoreurl}}
+</div>

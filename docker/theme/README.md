@@ -93,9 +93,63 @@ Aplicar en el servidor (sin Docker):
 ```
 
 Notas: `.bg-body` de Bootstrap 5 lleva `!important`, por eso el fondo del navbar también lo lleva. La altura se
-mantiene en 60 px (`$navbar-height`) para no desplazar los cajones laterales ni `#page`; la línea degradada es
-un `::after` dentro de la barra. Si el SCSS no compila, Boost sirve su CSS por defecto sin avisar: comprobar
-con `curl` que `theme/styles.php/boost/.../all` contiene `navbar.fixed-top::after`.
+mantiene en 60 px (`$navbar-height`) para no desplazar los cajones laterales ni `#page`. Si el SCSS no compila,
+Boost sirve su CSS por defecto sin avisar: comprobar con `curl` que `theme/styles.php/boost/.../all` contiene
+`navbar.fixed-top` con `background:#14224d`.
+
+> **Sustituido por el tema `theme_aurora` (2026-09-27, mismo día).** El SCSS en bruto de esta sección y los
+> ajustes `scsspre` / `additionalhtmlhead` ya no se usan: el sitio corre con el tema hijo de Boost
+> `public/theme/aurora` (ver su README), que lleva el mismo diseño en archivos versionados más el nombre junto
+> al avatar, el fondo de página y los bloques como tarjetas. `boost-header.scss` queda como referencia.
+
+### v2 del header: sistema de diseño Aurora (2026-09-27)
+
+`boost-header.scss` se reescribió siguiendo el sistema de diseño **Aurora** hecho con Claude Design
+(<https://claude.ai/artifact/UhumDhTPKUjchUp4a2TVEh>) y el tablero **Header Aurora** con el antes/después,
+los estados y la versión móvil (<https://claude.ai/artifact/Bu7DBorLpVPpdrB2PcNNvf>). Cambios frente a la v1:
+
+- Fondo plano `navy-900` (#14224d) en lugar del degradado; desaparece la línea multicolor y queda una línea
+  de 1 px `header-line` (#2f4a99). Sin sombra.
+- Pestaña activa marcada solo con texto blanco y un subrayado cian (#35c8f2) de 3 px inset; los ítems
+  inactivos van en #c5cfea. Mismo peso 600 en ambos estados. Hover: fondo `navy-800` inset con radio 4 px.
+- Anillo de foco de 2 px (#8fe3ff) con 2 px de separación en enlaces, botones, campos e interruptor.
+- Insignia de notificaciones en amber (#ffc53d) con texto navy, 18 px, anclada a la esquina del icono.
+- Todos los controles del clúster derecho miden al menos 40 × 40 px; separador vertical en `header-line`.
+- Interruptor "Modo de edición": OFF en `header-line`, ON en cian con el botón en navy; en móvil se oculta
+  la etiqueta.
+- Campo de búsqueda global (si se activa) con fondo `navy-800` y radio 8 px.
+- Menú de usuario: avatar de 32 px sin anillo, hover `navy-800`, desplegable con borde #dfe4ee.
+- Cajón móvil: cabecera navy plana con línea de 1 px, ítem activo con barra cian de 4 px a la izquierda.
+
+Además del SCSS, la v2 fija dos ajustes más (aplicados el 2026-09-27):
+
+- `additionalhtmlhead-header.html` → `additionalhtmlhead`: carga Inter desde Google Fonts (sin ella el header
+  cae en `system-ui`).
+- `theme_boost/scsspre` = `$navbar-height: 64px; $course-content-maxwidth: 1344px;`: altura del header del
+  sistema de diseño (Boost recalcula con ella el margen de `#page` y de los cajones) y ancho del contenido
+  como en el tablero "Después: Área personal" (1440 − 2 × 48 px de margen). Boost limita a 830 px el Área
+  personal y las páginas de curso (`body.limitedwidth`); con esto la vista general de cursos pasa de 830 a
+  unos 1200 px en una pantalla de 1440. El SCSS añade el relleno de 40 × 48 px a `.main-inner`.
+
+Lo que el tablero muestra y el sitio no tiene todavía, y por qué:
+
+- **Campo de búsqueda** en la barra: aparece cuando se activa la búsqueda global (`enableglobalsearch`); el
+  estilo ya está en el SCSS (`.simplesearchform`).
+- **Nombre junto al avatar**: Boost no imprime el nombre en el botón del menú de usuario; necesitaría una
+  plantilla en un tema hijo.
+- **Pestaña "Mis cursos"** y las **tarjetas del diplomado**: salen cuando el usuario está matriculado en
+  cursos; el tablero las dibuja como ejemplo de contexto.
+- **Insignia con contador**: solo con notificaciones sin leer.
+
+```sh
+docker compose cp docker/theme/boost-header.scss web:/tmp/header.scss
+docker compose cp docker/theme/additionalhtmlhead-header.html web:/tmp/head.html
+docker compose exec -T web sh -c '
+  php admin/cli/cfg.php --name=additionalhtmlhead --set="$(cat /tmp/head.html)" &&
+  php admin/cli/cfg.php --component=theme_boost --name=scsspre --set="\$navbar-height: 64px; \$course-content-maxwidth: 1344px;" &&
+  php admin/cli/cfg.php --component=theme_boost --name=scss --set="$(cat /tmp/header.scss)" &&
+  php admin/cli/purge_caches.php'
+```
 
 ## Older versions kept in this folder
 

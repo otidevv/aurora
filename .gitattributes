@@ -8,3 +8,6 @@
 # Remove composer lock file changes from standard diff views.
 /composer.lock -diff
 /lib/js/bundles/*/*.js -diff
+docker/entrypoint.sh text eol=lf
+docker/*.conf text eol=lf
+docker/*.ini text eol=lf

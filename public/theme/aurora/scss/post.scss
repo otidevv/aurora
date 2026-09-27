@@ -1,35 +1,21 @@
 // ============================================================================
-// Aurora: barra superior (header) sobre Boost, sin tocar archivos del core.
-// Se guarda en Apariencia > Temas > Boost > Avanzado > SCSS en bruto (theme_boost/scss).
-// v2 (2026-09-27): sigue el sistema de diseño "Aurora" (Claude Design) y el
-// tablero "Header Aurora": fondo plano navy-900, línea de 1px, pestaña activa
-// por indicador cian, foco visible, insignia amber, controles de 40 px.
-// El logo compacto (core_admin/logocompact) es logo_aurora_horizontal_blanco.png.
+// Tema Aurora: header y panel de notificaciones según el tablero "Header Aurora"
+// (https://claude.ai/artifact/Bu7DBorLpVPpdrB2PcNNvf). Se carga DESPUÉS del preset de Boost.
+// Las variables $au-* están en pre.scss.
 // ============================================================================
-// Tokens del sistema de diseño Aurora.
-$au-navy-900:   #14224d;  // Fondo del header. Un solo color plano; sin degradado.
-$au-navy-800:   #1d3270;  // Hover de ítems y fondo del campo de búsqueda.
-$au-navy-700:   #2a4590;  // Ítem presionado.
-$au-fg:         #ffffff;  // Texto e iconos activos.
-$au-fg-muted:   #c5cfea;  // Texto e iconos inactivos (contraste 10:1).
-$au-line:       #2f4a99;  // Línea de 1px bajo el header y separadores.
-$au-cyan:       #35c8f2;  // Indicador de pestaña activa y ON del interruptor.
-$au-amber:      #ffc53d;  // Fondo de la insignia; texto en navy-900.
-$au-focus:      #8fe3ff;  // Anillo de foco.
-$au-ink:        #1c2230;
-$au-border:     #dfe4ee;
-$au-target:     40px;     // Área mínima de todo control.
-$au-indicator:  3px;
-// Círculos del interruptor (blanco en OFF, navy en ON).
+
 $au-knob-off: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e");
 $au-knob-on:  url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2314224d'/%3e%3c/svg%3e");
 $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-width='1.75' d='M4 7h16M4 12h16M4 17h16'/%3e%3c/svg%3e");
 
+// ============================================================================
+// 1. Header (barra superior)
+// ============================================================================
 .navbar.fixed-top {
     background: $au-navy-900 !important;
     border-bottom: 1px solid $au-line;
     box-shadow: none;
-    font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-family: $au-font;
 
     .container-fluid {
         padding-left: 1.5rem;
@@ -48,7 +34,7 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
         border-radius: .25rem;
     }
 
-    // Marca -----------------------------------------------------------------
+    // Marca.
     .navbar-brand {
         color: $au-fg;
         font-weight: 700;
@@ -61,7 +47,7 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
         }
     }
 
-    // Navegación principal (Área personal, Mis cursos...) ----------------------
+    // Navegación principal: pestaña activa por indicador cian, hover inset navy-800.
     .primary-navigation .moremenu {
         .nav-link {
             position: relative;
@@ -73,7 +59,6 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
             padding-right: .75rem;
             border-bottom: 0;
             transition: color .15s ease;
-            // Fondo de hover inset (no ocupa toda la altura de la barra).
             &::before {
                 content: "";
                 position: absolute;
@@ -103,7 +88,6 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
                 font-weight: 600;
                 background-color: transparent;
                 border-bottom: 0;
-                // Indicador cian de 3 px a ras del borde inferior.
                 &::after {
                     content: "";
                     position: absolute;
@@ -126,7 +110,7 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
         }
     }
 
-    // Zona derecha: búsqueda, modo edición, notificaciones, mensajes, usuario -
+    // Zona derecha: búsqueda, modo edición, notificaciones, mensajes, usuario.
     #usernavigation {
         gap: .25rem;
 
@@ -136,7 +120,6 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
             height: 24px !important;
         }
 
-        // Controles de icono: 40 × 40 px, hover navy-800.
         .nav-link,
         .popover-region-toggle,
         .btn-icon {
@@ -170,7 +153,6 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
             display: flex;
             align-items: center;
         }
-        // Con insignia el icono pasa a blanco.
         .popover-region:has(.count-container:not(.hidden)) .popover-region-toggle {
             color: $au-fg;
         }
@@ -192,7 +174,7 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
             box-shadow: none;
         }
 
-        // Interruptor "Modo de edición": etiqueta a la izquierda, ON en cian.
+        // Interruptor "Modo de edición": etiqueta blanca en ambos estados, ON en cian.
         .editmode-switch-form {
             align-items: center;
             gap: .5rem;
@@ -209,8 +191,6 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
                 padding-left: 0;
                 margin: 0;
             }
-            // Boost añade .text-primary (azul, !important) a la etiqueta con el modo
-            // activo; el diseño la mantiene blanca en ambos estados.
             .form-check-label,
             .form-check-label.text-primary {
                 color: $au-fg !important;
@@ -237,7 +217,7 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
             }
         }
 
-        // Menú de usuario: avatar de 32 px + chevrón, hover navy-800.
+        // Menú de usuario: avatar 32 px + nombre + chevrón; hover navy-800.
         .usermenu {
             .dropdown-toggle,
             #user-menu-toggle {
@@ -257,6 +237,11 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
                     background-color: $au-navy-800;
                 }
             }
+            .userbutton {
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+            }
             .userpicture {
                 width: 32px;
                 height: 32px;
@@ -266,7 +251,11 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
             .usertext {
                 color: $au-fg;
                 font-size: 13px;
+                line-height: 16px;
                 font-weight: 500;
+                margin: 0;
+                float: none;
+                height: auto;
             }
             .dropdown-menu {
                 margin-top: .375rem;
@@ -281,13 +270,13 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
                 }
                 .dropdown-item:hover,
                 .dropdown-item:focus {
-                    background-color: #f4f6fa;
+                    background-color: $au-surface;
                     color: $au-navy-900;
                 }
             }
         }
 
-        // Buscador global (si está activado): campo navy-800 con radio 8 px.
+        // Buscador global (si está activado).
         .simplesearchform {
             .form-control {
                 background-color: $au-navy-800;
@@ -320,7 +309,7 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
         }
     }
 
-    // Botón hamburguesa en blanco, 44 px.
+    // Botón hamburguesa (móvil), 44 px.
     .navbar-toggler {
         --bs-navbar-toggler-icon-bg: #{$au-burger};
         width: 44px;
@@ -335,7 +324,13 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
         }
     }
 
-    // Móvil: Boost oculta la marca; la mostramos a 28 px entre el menú y los iconos.
+    @include media-breakpoint-down(lg) {
+        #usernavigation .usermenu .usertext {
+            display: none;
+        }
+    }
+
+    // Móvil: marca visible a 28 px; sin separadores ni etiqueta del interruptor.
     @include media-breakpoint-down(md) {
         .container-fluid {
             padding-left: .5rem;
@@ -349,8 +344,6 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
                 max-height: 28px;
             }
         }
-        // A 390 px no cabe todo con separadores y huecos: se quitan y el
-        // interruptor pierde la etiqueta (el estado lo da el color).
         #usernavigation {
             margin-left: 0 !important;
             gap: 0;
@@ -376,22 +369,7 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
     }
 }
 
-// Contenido bajo el header: el tablero "Después: Área personal" usa todo el ancho con
-// 48 px de margen lateral y 40 px arriba. El ancho máximo (1344 px) se fija en
-// theme_boost/scsspre con $course-content-maxwidth (Boost lo usa en .main-inner,
-// la cabecera de página y el pie).
-@include media-breakpoint-up(md) {
-    #page.drawers .main-inner {
-        padding: 2.5rem 3rem;
-    }
-    .header-maxwidth {
-        padding-left: 3rem;
-        padding-right: 3rem;
-    }
-}
-
-// Cajón lateral del móvil (menú principal): cabecera navy-900 plana, ítem activo con
-// barra cian de 4 px a la izquierda.
+// Cajón lateral del móvil: cabecera navy plana, ítem activo con barra cian.
 .drawer.drawer-primary {
     .drawerheader {
         background: $au-navy-900;
@@ -426,10 +404,336 @@ $au-burger:   url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' 
         font-weight: 600;
         color: $au-ink;
         &.active {
-            background-color: #f4f6fa;
+            background-color: $au-surface;
             color: $au-navy-900;
             border-color: transparent;
             border-left-color: $au-cyan;
+        }
+    }
+}
+
+
+// ============================================================================
+// 2. Panel de notificaciones (tablero "Notificaciones: panel abierto y estado vacío")
+//    420 px, radio 12 px, sombra del sistema; cabecera con contador y acciones con nombre;
+//    filtro Todas / No leídas; fila entera clicable; no leídas en azul muy claro con punto;
+//    estado vacío con mensaje; pie "Ver todas las notificaciones".
+// ============================================================================
+$au-notif-hover:  #eef2f9;
+$au-notif-unread: #f4f8ff;
+$au-notif-chip:   #eaf1ff;
+
+.popover-region-notifications {
+    // Sin la flecha de Boost bajo la campana.
+    .popover-region-toggle::before,
+    .popover-region-toggle::after {
+        display: none;
+    }
+
+    .popover-region-container {
+        top: calc(#{$navbar-height} + 8px);
+        right: 0;
+        width: 420px;
+        max-width: calc(100vw - 16px);
+        height: auto;
+        max-height: min(80vh, 620px);
+        display: flex;
+        flex-direction: column;
+        border: 1px solid $au-border;
+        border-radius: 12px;
+        box-shadow: 0 16px 40px rgba(20, 34, 77, .18);
+        overflow: hidden;
+        transition: none;
+        font-family: $au-font;
+        color: $au-ink;
+    }
+
+    // Cabecera: título + contador, acciones a la derecha.
+    .popover-region-header-container {
+        height: auto;
+        line-height: normal;
+        padding: 14px 12px 10px 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 0;
+    }
+    .popover-region-header-text {
+        float: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+        line-height: 22px;
+        font-weight: 600;
+        color: $au-ink;
+    }
+    .aurora-notif-count {
+        min-width: 22px;
+        height: 20px;
+        padding: 0 7px;
+        box-sizing: border-box;
+        border-radius: 999px;
+        background: $au-notif-chip;
+        color: $au-navy-800;
+        font-size: 12px;
+        line-height: 20px;
+        font-weight: 600;
+        text-align: center;
+        &.hidden {
+            display: none;
+        }
+    }
+    .popover-region-header-actions {
+        float: none;
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        > * {
+            margin-left: 0;
+            min-width: 0;
+        }
+        .aurora-ghost {
+            height: 32px;
+            padding: 0 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 0;
+            border-radius: 6px;
+            background: transparent;
+            color: $au-navy-800;
+            font-size: 13px;
+            line-height: 18px;
+            font-weight: 500;
+            text-decoration: none;
+            .icon {
+                margin: 0;
+                width: 16px;
+                height: 16px;
+                font-size: 16px;
+            }
+            &:hover,
+            &:focus {
+                background: $au-notif-hover;
+                color: $au-navy-900;
+                text-decoration: none;
+            }
+        }
+        .aurora-ghost-icon {
+            width: 32px;
+            padding: 0;
+            justify-content: center;
+            color: $au-ink-muted;
+        }
+        .mark-all-read-button.loading .aurora-ghost-label {
+            opacity: .5;
+        }
+    }
+
+    // Lista.
+    .popover-region-content-container {
+        height: auto;
+        max-height: 452px;
+        flex: 1 1 auto;
+        overflow-y: auto;
+    }
+    .aurora-notif-filter {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        display: flex;
+        gap: 16px;
+        padding: 0 20px;
+        background: $au-white;
+        border-bottom: 1px solid $au-border;
+    }
+    .aurora-notif-tab {
+        position: relative;
+        height: 36px;
+        padding: 0 4px;
+        background: transparent;
+        border: 0;
+        font-family: inherit;
+        font-size: 13px;
+        line-height: 18px;
+        font-weight: 500;
+        color: $au-ink-muted;
+        cursor: pointer;
+        &:hover {
+            color: $au-navy-900;
+        }
+        &.active {
+            color: $au-ink;
+            font-weight: 600;
+            &::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: -1px;
+                height: 2px;
+                background: $au-navy-800;
+                border-radius: 2px 2px 0 0;
+            }
+        }
+    }
+    &.aurora-filter-unread .content-item-container:not(.unread) {
+        display: none;
+    }
+    &.aurora-filter-unread .all-notifications:not(:has(.unread)) + .empty-message {
+        display: flex;
+    }
+
+    // Fila: icono en círculo, título, contexto, hora; punto si no está leída.
+    .content-item-container {
+        border-bottom: 0;
+        padding: 0;
+        .context-link {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 16px 12px 20px;
+            color: $au-ink;
+            text-decoration: none;
+        }
+        &:hover,
+        &.unread:hover {
+            background: $au-notif-hover;
+            color: $au-ink;
+        }
+        &.unread {
+            background: $au-notif-unread;
+            .notification-message {
+                font-weight: 600;
+            }
+        }
+        .aurora-notif-icon {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: $au-notif-chip;
+            display: grid;
+            place-items: center;
+            img {
+                width: 18px;
+                height: 18px;
+            }
+        }
+        .content-item-body {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin: 0;
+        }
+        .notification-message {
+            display: block;
+            width: auto;
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 500;
+            color: $au-ink;
+        }
+        .aurora-notif-context {
+            font-size: 13px;
+            line-height: 18px;
+            color: $au-ink-muted;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .content-item-footer .timestamp {
+            font-size: 12px;
+            line-height: 16px;
+            color: $au-ink-muted;
+        }
+        &:hover .content-item-footer .timestamp {
+            color: $au-ink-muted;
+        }
+        .aurora-notif-dot {
+            flex-shrink: 0;
+            margin-top: 6px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: $au-navy-800;
+        }
+        .aurora-notif-chevron {
+            flex-shrink: 0;
+            margin-top: 2px;
+            color: $au-ink-muted;
+            .icon {
+                margin: 0;
+            }
+        }
+        .view-more {
+            position: static;
+        }
+    }
+
+    // Estado vacío.
+    .empty-message {
+        padding: 32px 24px;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        text-align: center;
+        color: $au-ink-muted;
+        font-size: 13px;
+        line-height: 18px;
+        .aurora-empty-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: $au-notif-hover;
+            display: grid;
+            place-items: center;
+            .icon {
+                margin: 0;
+                width: 22px;
+                height: 22px;
+                font-size: 22px;
+                color: $au-ink-muted;
+            }
+        }
+        .aurora-empty-title {
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 600;
+            color: $au-ink;
+        }
+    }
+    .all-notifications:empty + .empty-message {
+        display: flex;
+    }
+    .popover-region-content-container.loading .all-notifications:empty + .empty-message {
+        display: none;
+    }
+
+    // Pie.
+    .see-all-link {
+        text-decoration: none;
+        .popover-region-footer-container {
+            height: 48px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top: 1px solid $au-border;
+            background: $au-white;
+        }
+        .popover-region-seeall-text {
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 600;
+            color: $au-navy-800;
+        }
+        &:hover .popover-region-footer-container {
+            background: $au-notif-hover;
         }
     }
 }

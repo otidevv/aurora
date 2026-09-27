@@ -14,7 +14,11 @@ COPY docker/php.ini /usr/local/etc/php/conf.d/zz-moodle.ini
 
 # Ensure the moodledata volume is writable by Apache before the server starts.
 COPY docker/entrypoint.sh /usr/local/bin/moodle-entrypoint.sh
-RUN chmod +x /usr/local/bin/moodle-entrypoint.sh
+# Strip CRLF line endings (the repo may be checked out on Windows with autocrlf).
+RUN sed -i 's/\r$//' /usr/local/bin/moodle-entrypoint.sh \
+        /etc/apache2/sites-available/000-default.conf \
+        /usr/local/etc/php/conf.d/zz-moodle.ini \
+    && chmod +x /usr/local/bin/moodle-entrypoint.sh
 
 WORKDIR /var/www/html
 ENTRYPOINT ["/usr/local/bin/moodle-entrypoint.sh"]

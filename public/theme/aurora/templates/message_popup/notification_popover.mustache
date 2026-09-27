@@ -1,0 +1,150 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template theme_aurora/message_popup/notification_popover
+
+    Sobrescribe message_popup/notification_popover con el panel del tablero
+    "Notificaciones: panel abierto y estado vacío": cabecera con contador y acciones con
+    nombre, filtro Todas / No leídas, estado vacío con mensaje y pie "Ver todas las
+    notificaciones". Conserva todos los data-region / data-action que usa el JS de Moodle.
+
+    Context variables required for this template:
+    * userid the logged in user id
+    * unreadcount number of unread notifications
+    * urls The URLs for the popover (preferences, seeall)
+
+    Example context (json):
+    {
+        "userid": 3,
+        "unreadcount": 9,
+        "urls": {
+            "preferences": "http://www.moodle.com",
+            "seeall": "http://www.moodle.com"
+        }
+    }
+}}
+{{< core/popover_region }}
+    {{$classes}}popover-region-notifications aurora-notifications{{/classes}}
+    {{$attributes}}id="nav-notification-popover-container" data-userid="{{userid}}"{{/attributes}}
+
+    {{$togglelabel}}{{!
+        }}{{^unreadcount}} {{#str}} shownotificationwindownonew, message {{/str}} {{/unreadcount}} {{!
+        }}{{#unreadcount}} {{#str}} shownotificationwindowwithcount, message, {{.}} {{/str}} {{/unreadcount}} {{!
+    }}{{/togglelabel}}
+    {{$togglecontent}}
+        {{#pix}} i/notifications, core {{/pix}}
+        <div
+            class="count-container {{^unreadcount}}hidden{{/unreadcount}}"
+            data-region="count-container"
+            aria-hidden=true
+        >
+            {{unreadcount}}
+        </div>
+    {{/togglecontent}}
+    {{$containerrole}}dialog{{/containerrole}}
+    {{$containerattributes}}
+        aria-modal="true"
+        tabindex="-1"
+    {{/containerattributes}}
+    {{$containerlabel}}{{#str}} notificationwindow, message {{/str}}{{/containerlabel}}
+
+    {{$headertext}}{{#str}} notifications, message {{/str}}<span class="aurora-notif-count {{^unreadcount}}hidden{{/unreadcount}}" data-region="aurora-unread-count" aria-hidden="true">{{unreadcount}}</span>{{/headertext}}
+    {{$headeractions}}
+        <a class="mark-all-read-button btn btn-sm btn-link m-0 py-0 aurora-ghost"
+           href="#"
+           title="{{#str}} markallread {{/str}}"
+           data-action="mark-all-read"
+           role="button"
+           aria-label="{{#str}} markallread {{/str}}">
+            <span class="normal-icon">{{#pix}} t/markasread, core {{/pix}}</span>
+            {{> core/loading }}
+            <span class="aurora-ghost-label" aria-hidden="true">{{#str}} markallread {{/str}}</span>
+            {{! Records notifications being marked as read state message. }}
+            <span aria-live="polite" class="visually-hidden" data-region="notification-read-feedback"></span>
+        </a>
+        {{# urls.preferences }}
+            <a href="{{{ . }}}"
+               title="{{#str}} notificationpreferences, message {{/str}}"
+               aria-label="{{#str}} notificationpreferences, message {{/str}}"
+               class="btn btn-sm btn-link m-0 py-0 icon-no-margin aurora-ghost aurora-ghost-icon" >
+                {{#pix}} i/settings, core {{/pix}}</a>
+        {{/ urls.preferences }}
+        <button type="button" class="btn btn-sm btn-link m-0 py-0 icon-no-margin aurora-ghost aurora-ghost-icon" aria-label="{{#str}}closebuttontitle{{/str}}" title="{{#str}}closebuttontitle{{/str}}" data-action="close-notification-popover">
+            {{#pix}}i/window_close{{/pix}}
+        </button>
+    {{/headeractions}}
+
+    {{$content}}
+        <div class="aurora-notif-filter" role="tablist" aria-label="{{#str}} notif_filter, theme_aurora {{/str}}">
+            <button type="button" role="tab" aria-selected="true" class="aurora-notif-tab active" data-aurora-filter="all">{{#str}} notif_all, theme_aurora {{/str}}</button>
+            <button type="button" role="tab" aria-selected="false" class="aurora-notif-tab" data-aurora-filter="unread">{{#str}} notif_unread, theme_aurora {{/str}}</button>
+        </div>
+        <div class="all-notifications"
+            data-region="all-notifications"
+            role="log"
+            aria-busy="false"
+            aria-atomic="false"
+            aria-relevant="additions"></div>
+        <div class="empty-message" tabindex="0" data-region="empty-message">
+            <span class="aurora-empty-icon" aria-hidden="true">{{#pix}} i/notifications, core {{/pix}}</span>
+            <span class="aurora-empty-title">{{#str}} notif_uptodate, theme_aurora {{/str}}</span>
+            <span class="aurora-empty-text">{{#str}} nonotifications, message {{/str}}</span>
+        </div>
+    {{/content}}
+
+    {{$anchor}}
+        {{#urls.seeall}}
+            <a class="see-all-link" href="{{{.}}}">
+                <div class="popover-region-footer-container">
+                    <div class="popover-region-seeall-text">{{#str}} notif_seeall, theme_aurora {{/str}}</div>
+                </div>
+            </a>
+        {{/urls.seeall}}
+    {{/anchor}}
+{{/ core/popover_region }}
+{{#js}}
+require(['jquery', 'message_popup/notification_popover_controller'], function($, Controller) {
+    var container = $('#nav-notification-popover-container');
+    var controller = new Controller(container);
+    controller.registerEventListeners();
+    controller.registerListNavigationEventListeners();
+
+    // Aurora: filtro Todas / No leídas (solo oculta las leídas; el JS de Moodle sigue igual).
+    container.on('click', '[data-aurora-filter]', function(e) {
+        e.preventDefault();
+        var mode = $(this).data('aurora-filter');
+        container.toggleClass('aurora-filter-unread', mode === 'unread');
+        container.find('[data-aurora-filter]').each(function() {
+            var on = $(this).data('aurora-filter') === mode;
+            $(this).toggleClass('active', on).attr('aria-selected', on ? 'true' : 'false');
+        });
+    });
+
+    // Aurora: el contador junto al título es un espejo del contador del botón de la campana.
+    var badge = container.find('[data-region="count-container"]');
+    var mirror = container.find('[data-region="aurora-unread-count"]');
+    var sync = function() {
+        var n = $.trim(badge.text());
+        var hidden = badge.hasClass('hidden') || !n || n === '0';
+        mirror.text(n).toggleClass('hidden', hidden);
+    };
+    if (badge.length && mirror.length && window.MutationObserver) {
+        new MutationObserver(sync).observe(badge.get(0), {childList: true, characterData: true, subtree: true, attributes: true});
+    }
+    sync();
+});
+{{/js}}
