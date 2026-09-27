@@ -737,3 +737,291 @@ $au-notif-chip:   #eaf1ff;
         }
     }
 }
+
+// ============================================================================
+// 3. Página "Notificaciones" (message/output/popup/notifications.php)
+//    Reutiliza la misma fila que el panel (icono en círculo, título, hora, punto o chevrón)
+//    en la lista de la izquierda, y muestra el mensaje a la derecha con anchura de lectura.
+//    Sin esto, la plantilla del tema se renderiza aquí sin estilos y el icono llena la columna.
+// ============================================================================
+$au-notif-list-width: 360px;
+
+.notification-area {
+    height: clamp(440px, calc(100vh - #{$navbar-height} - 260px), 720px);
+    margin-bottom: 2rem;
+    border: 1px solid $au-border;
+    border-radius: 12px;
+    overflow: hidden;
+    background: $au-white;
+    font-family: $au-font;
+    color: $au-ink;
+
+    // Lista de notificaciones (izquierda).
+    .control-area {
+        width: $au-notif-list-width;
+        border-right: 1px solid $au-border;
+        background: $au-white;
+
+        .content .content-item-container {
+            border-bottom: 1px solid $au-border;
+            padding: 0;
+            .context-link {
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 12px 16px;
+                color: $au-ink;
+                text-decoration: none;
+                outline-offset: -2px;
+            }
+            &:hover {
+                background: $au-notif-hover;
+            }
+            &.unread {
+                background: $au-notif-unread;
+                .notification-message {
+                    font-weight: 600;
+                }
+            }
+            &.selected {
+                background: $au-notif-hover;
+                box-shadow: inset 3px 0 0 $au-cyan;
+                .notification-message {
+                    color: $au-navy-800;
+                }
+            }
+            .aurora-notif-icon {
+                flex-shrink: 0;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: $au-notif-chip;
+                display: grid;
+                place-items: center;
+                img {
+                    width: 18px;
+                    height: 18px;
+                }
+            }
+            .content-item-body {
+                flex: 1 1 auto;
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+                margin: 0;
+            }
+            .notification-message {
+                display: block;
+                width: auto;
+                font-size: 14px;
+                line-height: 20px;
+                font-weight: 500;
+                color: $au-ink;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .aurora-notif-context {
+                font-size: 13px;
+                line-height: 18px;
+                color: $au-ink-muted;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .content-item-footer .timestamp {
+                font-size: 12px;
+                line-height: 16px;
+                color: $au-ink-muted;
+            }
+            .aurora-notif-dot {
+                flex-shrink: 0;
+                margin-top: 6px;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: $au-navy-800;
+            }
+            .aurora-notif-chevron {
+                flex-shrink: 0;
+                margin-top: 2px;
+                color: $au-ink-muted;
+                .icon {
+                    margin: 0;
+                }
+            }
+            .view-more {
+                position: static;
+            }
+        }
+        .empty-text {
+            padding: 40px 24px;
+            color: $au-ink-muted;
+            font-size: 14px;
+        }
+    }
+
+    // Detalle (derecha): cabecera con asunto y hora, cuerpo con anchura de lectura, pie con enlace.
+    .content-area {
+        width: calc(100% - #{$au-notif-list-width});
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: $au-surface;
+
+        .header {
+            height: auto;
+            min-height: 64px;
+            padding: 14px 24px;
+            border-bottom: 1px solid $au-border;
+            background: $au-white;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            column-gap: 12px;
+            .subject-container {
+                display: block;
+                max-width: 100%;
+                height: auto;
+                padding: 0;
+                white-space: normal;
+                font-size: 16px;
+                line-height: 24px;
+                font-weight: 600;
+                color: $au-ink;
+            }
+            .timestamp {
+                padding: 0;
+                font-size: 12px;
+                line-height: 16px;
+                color: $au-ink-muted;
+            }
+        }
+
+        > .content {
+            flex: 1 1 auto;
+            height: auto;
+            padding: 24px 28px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: $au-ink;
+            > * {
+                max-width: 68ch;
+            }
+            p:last-child {
+                margin-bottom: 0;
+            }
+            a {
+                color: $au-navy-800;
+                text-decoration: underline;
+            }
+            &:empty + .empty-text {
+                padding-top: 80px;
+                color: $au-ink-muted;
+            }
+        }
+
+        .footer {
+            height: auto;
+            padding: 12px 24px;
+            border-top: 1px solid $au-border;
+            background: $au-white;
+            text-align: left;
+            a {
+                display: inline-flex;
+                align-items: center;
+                min-height: 36px;
+                line-height: 20px;
+                padding: 0 14px;
+                border: 1px solid $au-navy-800;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                color: $au-navy-800;
+                text-decoration: none;
+                &:hover,
+                &:focus {
+                    background: $au-notif-hover;
+                }
+            }
+        }
+    }
+
+    // Móvil: lista y detalle se alternan a pantalla completa (Boost). El detalle se ordena en rejilla
+    // para que "Atrás" y el asunto compartan la primera fila (en el markup son hermanos).
+    @media (max-width: 979px) {
+        height: clamp(420px, calc(100vh - #{$navbar-height} - 200px), 720px);
+        .control-area {
+            width: 100%;
+            border-right: 0;
+        }
+        .content-area {
+            width: 100%;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            grid-template-rows: auto minmax(0, 1fr) auto;
+            .toggle-mode {
+                // Sin barras: el compilador SCSS de Moodle interpreta "1 / 2" como división.
+                grid-row: 1;
+                grid-column: 1;
+                float: none;
+                width: auto;
+                height: auto;
+                line-height: normal;
+                display: flex;
+                align-items: center;
+                padding: 0 0 0 8px;
+                border-right: 0;
+                border-bottom: 1px solid $au-border;
+                background: $au-white;
+                .btn {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 2px;
+                    padding: 8px 10px 8px 6px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: $au-navy-800;
+                    text-decoration: none;
+                    &::before {
+                        content: "\2039";
+                        font-size: 22px;
+                        line-height: 1;
+                    }
+                    &:hover,
+                    &:focus {
+                        background: $au-notif-hover;
+                    }
+                }
+            }
+            .header {
+                grid-row: 1;
+                grid-column: 2;
+                display: flex;
+                flex-direction: column;
+                width: auto;
+                min-height: 0;
+                padding: 10px 16px 10px 4px;
+                .subject-container {
+                    font-size: 15px;
+                    line-height: 22px;
+                }
+            }
+            > .content {
+                grid-row: 2;
+                grid-column-start: 1;
+                grid-column-end: 3;
+                overflow: auto;
+                padding: 20px 16px;
+            }
+            .footer {
+                grid-row: 3;
+                grid-column-start: 1;
+                grid-column-end: 3;
+                padding: 12px 16px;
+            }
+        }
+    }
+}

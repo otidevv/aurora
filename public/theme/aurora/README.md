@@ -19,6 +19,8 @@ Fuentes del diseño:
 | `classes/hook_callbacks.php`, `db/hooks.php` | Cargan Inter desde Google Fonts en el `<head>` (el compilador SCSS de Moodle no admite `@import url()`). |
 | `templates/core/user_menu_metadata.mustache` | Muestra el nombre del usuario junto al avatar (oculto por debajo de 992 px). |
 | `templates/message_popup/notification_popover.mustache` | Panel de notificaciones del tablero "Notificaciones": cabecera con contador y "Marcar todo como leído" con texto, filtro Todas / No leídas (JS propio en el `{{#js}}` de la plantilla, solo oculta las leídas), estado vacío "Estás al día", pie "Ver todas las notificaciones". Conserva los `data-region` / `data-action` del JS de Moodle. |
+| `scss/post.scss` sección 3 | Página completa "Notificaciones" (`message/output/popup/notifications.php`): la lista de la izquierda reutiliza la fila del panel (icono en círculo de 36 px, título, hora, punto o chevrón, seleccionada con barra cian), el detalle lleva cabecera con asunto y hora, cuerpo a 15 px con anchura de lectura y pie con el enlace al recurso como botón. En móvil el detalle se ordena en rejilla para que "Atrás" y el asunto compartan fila. Sin esta sección la fila del tema se pintaba sin estilos y el icono llenaba la columna. |
+| `templates/message_popup/notification_area_content_area_footer.mustache` | Pie del detalle: el enlace "Ir a: …" solo se muestra si la notificación tiene recurso asociado (antes salía vacío en las de inicio de sesión). |
 | `templates/message_popup/notification_content_item.mustache` | Fila entera clicable: icono en círculo, título, contexto (`contexturlname`) en gris, hora, punto de no leída o chevrón. "Ver notificación completa" queda solo para teclado y lectores de pantalla. |
 | `lang/en`, `lang/es` | Nombre y descripción del tema. |
 
@@ -45,6 +47,11 @@ de contenido (1344 px), los bloques como tarjetas, los botones y enlaces en navy
 página del curso (pestañas, secciones como tarjetas, filas de actividades, índice). Los artboards de "Después:
 Área personal" y "Página del curso" siguen en el tablero por si se retoman; lo que en ellos depende de datos
 (ruta, progreso, "Próxima entrega", chips de estado, fechas cortas) necesitaría un renderer propio.
+
+## Trampa del compilador SCSS
+
+El compilador SCSS de Moodle evalúa `grid-area: 1 / 2` como la división `0.5` y descarta la regla. Para
+rejillas usar `grid-row` / `grid-column` con un valor, o `grid-column-start` / `grid-column-end`.
 
 ## Panel de notificaciones: lo que no cubre el tema
 
