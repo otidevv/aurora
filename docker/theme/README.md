@@ -74,6 +74,29 @@ Notes:
 - The left column is `d-lg-flex` (flex !important), so `.login-layout-left-content` needs
   `width: 100%` or it shrinks to its max-content width.
 
+## Header (barra superior) — 2026-09-27
+
+La barra superior de Boost (la que se ve en `/my/` y en todo el sitio) se personaliza también sin tocar
+el core, con el logo Aurora en horizontal y los colores del logo (azul marino, cian, violeta, sol).
+
+| Archivo | Dónde va |
+|---------|----------|
+| `boost-header.scss` | Boost > Avanzado > **SCSS en bruto** (`theme_boost/scss`). Fondo azul marino degradado, línea degradada al pie, pestaña activa subrayada en cian, iconos y "Modo de edición" en blanco, contador de notificaciones en el naranja del sol, avatar con anillo, marca visible también en móvil y cabecera del cajón lateral en azul marino. |
+| `logo_aurora_horizontal_blanco.png` | Logo compacto (`core_admin/logocompact`): `php set_logo.php <ruta> logocompact`. Es el icono "A" + la palabra AURORA en blanco, generado a partir de `logo_aurora.png` con GD (467×120, se muestra a 40 px). |
+| `logo_aurora_horizontal_navy.png` | Misma composición con la palabra en azul marino, por si se vuelve a un header claro. |
+
+Aplicar en el servidor (sin Docker):
+
+```sh
+~/php83/php -c ~/php83/etc/php.ini admin/cli/cfg.php --component=theme_boost --name=scss --set="$(cat docker/theme/boost-header.scss)"
+~/php83/php -c ~/php83/etc/php.ini admin/cli/purge_caches.php
+```
+
+Notas: `.bg-body` de Bootstrap 5 lleva `!important`, por eso el fondo del navbar también lo lleva. La altura se
+mantiene en 60 px (`$navbar-height`) para no desplazar los cajones laterales ni `#page`; la línea degradada es
+un `::after` dentro de la barra. Si el SCSS no compila, Boost sirve su CSS por defecto sin avisar: comprobar
+con `curl` que `theme/styles.php/boost/.../all` contiene `navbar.fixed-top::after`.
+
 ## Older versions kept in this folder
 
 | Version | Files | Look |

@@ -1,0 +1,259 @@
+// ============================================================================
+// Aurora: barra superior (header) sobre Boost, sin tocar archivos del core.
+// Se guarda en Apariencia > Temas > Boost > Avanzado > SCSS en bruto (theme_boost/scss).
+// Colores tomados del logo Aurora: azul marino, azul, cian, violeta y el sol.
+// El logo compacto (core_admin/logocompact) es logo_aurora_horizontal_blanco.png.
+// ============================================================================
+$aurora-navy:   #0a2350;
+$aurora-navy-2: #10387a;
+$aurora-blue:   #0a74fb;
+$aurora-cyan:   #2ad4ee;
+$aurora-purple: #9855f6;
+$aurora-sun:    #f7a928;
+$aurora-text:   rgba(255, 255, 255, .86);
+$aurora-hover:  rgba(255, 255, 255, .10);
+
+.navbar.fixed-top {
+    background: linear-gradient(90deg, $aurora-navy 0%, $aurora-navy-2 60%, #0c4c9f 100%) !important;
+    border-bottom: 0;
+    box-shadow: 0 2px 14px rgba(4, 18, 48, .28);
+
+    // Línea degradada al pie (misma que lleva el logo bajo la palabra AURORA).
+    &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 3px;
+        background: linear-gradient(90deg, $aurora-purple 0%, $aurora-blue 50%, $aurora-cyan 100%);
+        pointer-events: none;
+    }
+
+    .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    // Marca -----------------------------------------------------------------
+    .navbar-brand {
+        color: #fff;
+        font-weight: 700;
+        letter-spacing: .04em;
+        .logo {
+            max-height: 40px;
+            width: auto;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .25));
+        }
+    }
+
+    // Navegación principal (Área personal, Mis cursos...) ----------------------
+    .primary-navigation .moremenu {
+        .nav-link {
+            color: $aurora-text;
+            font-weight: 500;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            border-bottom: 3px solid transparent;
+            transition: background-color .15s ease, color .15s ease;
+            &:hover,
+            &:focus,
+            &:focus-visible {
+                color: #fff;
+                background-color: $aurora-hover;
+                border-color: transparent;
+                border-bottom-color: rgba(255, 255, 255, .35);
+            }
+            &.active,
+            &.active:hover,
+            &.active:focus {
+                color: #fff;
+                font-weight: 600;
+                background-color: rgba(255, 255, 255, .06);
+                border-bottom-color: $aurora-cyan;
+            }
+        }
+        .nav-link.dropdown-toggle::after {
+            opacity: .8;
+        }
+    }
+
+    // Zona derecha: modo edición, notificaciones, mensajes, usuario -----------
+    .divider {
+        background-color: rgba(255, 255, 255, .22);
+    }
+
+    #usernavigation {
+        .nav-link,
+        .popover-region-toggle {
+            color: $aurora-text;
+            border-radius: .5rem;
+            transition: background-color .15s ease, color .15s ease;
+            &:hover,
+            &:focus {
+                color: #fff;
+                background-color: $aurora-hover;
+            }
+            .icon {
+                color: inherit;
+            }
+        }
+        .popover-region-toggle {
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+        .count-container {
+            background-color: $aurora-sun;
+            color: #1b1b1b;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 2px 5px;
+            box-shadow: 0 0 0 2px $aurora-navy-2;
+        }
+
+        // Interruptor "Modo de edición".
+        .editmode-switch-form {
+            .form-check-label {
+                color: $aurora-text;
+                font-weight: 500;
+            }
+            .form-check-input {
+                background-color: rgba(255, 255, 255, .25);
+                border-color: rgba(255, 255, 255, .5);
+                cursor: pointer;
+                &:checked {
+                    background-color: $aurora-cyan;
+                    border-color: $aurora-cyan;
+                }
+                &:focus {
+                    box-shadow: 0 0 0 .2rem rgba(42, 212, 238, .35);
+                }
+            }
+        }
+
+        // Menú de usuario: avatar con anillo.
+        .usermenu {
+            .dropdown-toggle,
+            #user-menu-toggle {
+                color: #fff;
+                padding-left: .5rem;
+                padding-right: .5rem;
+                &::after {
+                    color: $aurora-text;
+                }
+                &:hover,
+                &:focus {
+                    background-color: $aurora-hover;
+                }
+            }
+            .userpicture {
+                border-radius: 50%;
+                box-shadow: 0 0 0 2px rgba(255, 255, 255, .85);
+                transition: box-shadow .15s ease;
+            }
+            .dropdown-toggle:hover .userpicture,
+            .show .userpicture {
+                box-shadow: 0 0 0 2px $aurora-cyan;
+            }
+            .usertext {
+                color: #fff;
+            }
+            .dropdown-menu {
+                margin-top: .35rem;
+                border: 0;
+                border-radius: .75rem;
+                box-shadow: 0 12px 32px rgba(10, 35, 80, .22);
+                overflow: hidden;
+                .dropdown-item {
+                    padding-top: .45rem;
+                    padding-bottom: .45rem;
+                }
+                .dropdown-item:hover,
+                .dropdown-item:focus {
+                    background-color: rgba(10, 116, 251, .08);
+                    color: $aurora-navy;
+                }
+            }
+        }
+
+        // Buscador (si se activa la búsqueda global).
+        .simplesearchform {
+            .form-control {
+                background-color: rgba(255, 255, 255, .12);
+                border-color: rgba(255, 255, 255, .3);
+                color: #fff;
+                &::placeholder {
+                    color: rgba(255, 255, 255, .6);
+                }
+            }
+            .btn {
+                color: $aurora-text;
+            }
+        }
+    }
+
+    // Botón hamburguesa en blanco.
+    .navbar-toggler {
+        --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        border-radius: .5rem;
+        &:hover,
+        &:focus {
+            background-color: $aurora-hover;
+        }
+    }
+
+    // En móvil Boost oculta la marca: la mostramos pequeña entre el menú y los iconos.
+    @include media-breakpoint-down(md) {
+        .navbar-brand {
+            display: flex !important;
+            margin-right: auto !important;
+            margin-left: .25rem !important;
+            .logo {
+                max-height: 30px;
+            }
+        }
+        #usernavigation {
+            margin-left: 0 !important;
+        }
+    }
+    @media (max-width: 400px) {
+        .navbar-brand .logo {
+            max-height: 26px;
+        }
+    }
+}
+
+// Cajón lateral del móvil (menú principal): cabecera azul marino para el logo blanco.
+.drawer.drawer-primary {
+    .drawerheader {
+        background: linear-gradient(90deg, $aurora-navy 0%, $aurora-navy-2 100%);
+        border-bottom: 3px solid;
+        border-image: linear-gradient(90deg, $aurora-purple, $aurora-blue, $aurora-cyan) 1;
+        .logo {
+            max-height: 36px;
+            width: auto;
+        }
+        .sitename {
+            color: #fff;
+            font-weight: 700;
+        }
+        .drawertoggle {
+            color: #fff;
+            &:hover,
+            &:focus {
+                background-color: $aurora-hover;
+            }
+        }
+    }
+    .list-group-item {
+        border-left: 4px solid transparent;
+        &.active {
+            background-color: rgba(10, 116, 251, .08);
+            color: $aurora-navy;
+            font-weight: 600;
+            border-color: transparent;
+            border-left-color: $aurora-cyan;
+        }
+    }
+}
